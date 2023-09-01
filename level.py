@@ -80,7 +80,7 @@ monster = {
 
 floor = [
     [
-        ["upstairs", "wall", "floor", "wall", "green-door", "floor", "floor", "floor", "floor", "floor", "floor"],
+        ["upstairs", "wall", "floor", "wall", "green-door", "floor", "floor", "floor", "floor", "floor", "ice-magic"],
         ["floor", "wall", "floor", "wall", "floor", "floor", "floor", "green-slime", "floor", "topaz", "floor"],
         ["yellow-key", "wall", "floor", "sapphire", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
         ["blue-key", "wall", "floor", "wall", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
@@ -98,7 +98,7 @@ floor = [
          "floor"],
         ["floor", "floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "floor"],
         ["floor", "floor", "green-key", "green-key", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
-        ["floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall"],
+        ["lava", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall"],
         ["floor", "floor", "floor", "blue-key", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
         ["floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "floor"],
         ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],

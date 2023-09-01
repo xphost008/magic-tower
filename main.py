@@ -39,8 +39,9 @@ player_back_image = pygame.image.load(".\\image\\player_back.png")  # 玩家背�
 
 wall_image = pygame.image.load(".\\image\\wall.png")  # 墙壁
 floor_image = pygame.image.load(".\\image\\floor.png")  # 地板
-upstairs = pygame.image.load(".\\image\\upstairs.png")
-downstairs = pygame.image.load(".\\image\\downstairs.png")
+upstairs = pygame.image.load(".\\image\\upstairs.png")  # 上楼
+downstairs = pygame.image.load(".\\image\\downstairs.png")  # 下楼
+lava_image = pygame.image.load(".\\image\\lava.png")  # 岩浆
 
 emerald_image = pygame.image.load(".\\image\\emerald.png")  # 绿宝石
 sapphire_image = pygame.image.load(".\\image\\sapphire.png")  # 蓝宝石
@@ -51,6 +52,7 @@ green_key_image = pygame.image.load(".\\image\\green_key.png")  # 绿钥匙
 blue_key_image = pygame.image.load(".\\image\\blue_key.png")  # 蓝钥匙
 yellow_key_image = pygame.image.load(".\\image\\yellow_key.png")  # 黄钥匙
 red_key_image = pygame.image.load(".\\image\\red_key.png")  # 红钥匙
+ice_magic_image = pygame.image.load(".\\image\\ice_magic.png")
 
 green_slime_image = pygame.image.load(".\\image\\green_slime.png")  # 绿色史莱姆
 blue_slime_image = pygame.image.load(".\\image\\blue_slime.png")  # 蓝色史莱姆
@@ -72,6 +74,7 @@ font_help = pygame.font.Font(".\\font\\msyh.ttc", 24)  # 帮助字体
 can_turn = True  # 玩家此时是否可以行走
 is_exit = False  # 是否直接退出游戏
 is_fail = False  # 是否失败
+ice_magic = False  # 是否拥有冰冻魔法
 
 current_level = 0  # 当前楼层
 face = 1  # 玩家朝向【1：前、2：后、3：左、4：右】
@@ -140,7 +143,9 @@ def update_prop():
     surface = pygame.Surface((256, 256))
     surface.fill((192, 192, 192))
     screen.blit(surface, (768, 256))
-    pygame.draw.rect(screen, (0, 0, 0), ((768, 256), (256, 256)), width=10)
+    pygame.draw.rect(screen, (0, 0, 0), ((768, 256), (256, 256)), width=1)
+    if ice_magic:
+        screen.blit(ice_magic_image, (768, 256))
 
 
 def help_message(text: str):
@@ -279,6 +284,7 @@ def player_move():
     global red_key, blue_key, green_key, yellow_key
     global is_fail, can_turn, current_level
     global x, y, dx, dy
+    global ice_magic
     if is_fail:
         return
     x = max(32, min(672, x))
@@ -402,6 +408,16 @@ def player_move():
         initFloor()
         message("下到：" + str(current_level + 1) + "层", False)
         return
+    if lvl[dy - 1][dx - 1] == "ice-magic":
+        message("获得”冰冻魔法“", False)
+        ice_magic = True
+    if lvl[dy - 1][dx - 1] == "lava":
+        if not ice_magic:
+            message("你不能穿过这里。", False)
+            match_face()
+            return
+        else:
+            message("你熄灭了岩浆。", False)
 
     lvl[dy - 1][dx - 1] = "player"
     # match face:
@@ -641,8 +657,12 @@ def blit_initial():
     dy = 672
     for i in range(0, len(level.floor[current_level])):
         for j in range(0, len(level.floor[current_level][i])):
+            if level.floor[current_level][i][j] == "ice-magic":
+                screen.blit(ice_magic_image, (32 + j * 64, 32 + i * 64))
             if level.floor[current_level][i][j] == "wall":
                 screen.blit(wall_image, (32 + j * 64, 32 + i * 64))
+            if level.floor[current_level][i][j] == "lava":
+                screen.blit(lava_image, (32 + j * 64, 32 + i * 64))
             if level.floor[current_level][i][j] == "upstairs":
                 screen.blit(upstairs, (32 + j * 64, 32 + i * 64))
             if level.floor[current_level][i][j] == "downstairs":
