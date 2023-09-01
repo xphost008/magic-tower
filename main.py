@@ -20,7 +20,7 @@ screen = pygame.display.set_mode((1024, 768))  # 设定窗口宽高为1024 x 768
 
 pygame.display.set_caption("Magic Tower Remake 2 Fantastic Work!!")  # 设定窗口标题为此
 
-player_life = 0  # 玩家生命
+player_health = 0  # 玩家生命
 player_attack = 0  # 玩家攻击
 player_defense = 0  # 玩家防御
 player_money = 0  # 玩家金钱
@@ -67,6 +67,7 @@ font_start_menu = pygame.font.Font(".\\font\\simfang.ttf", 96)  # 界面大标�
 font_start_button = pygame.font.Font(".\\font\\simfang.ttf", 36)  # 按钮标题
 font_message = pygame.font.Font(".\\font\\msyh.ttc", 16)  # 信息框字体
 font_level = pygame.font.Font(".\\font\\msyh.ttc", 42)  # 楼层字体
+font_help = pygame.font.Font(".\\font\\msyh.ttc", 24)  # 帮助字体
 
 can_turn = True  # 玩家此时是否可以行走
 is_exit = False  # 是否直接退出游戏
@@ -80,15 +81,14 @@ y = 0  # 当前走过的纵坐标真实值
 dx = 0  # 当前走过的横坐标比例值
 dy = 0  # 当前走过的纵坐标比例值
 
+help_page = 0
+
 
 def match_face():
     """
     匹配玩家的朝向，从而判定此时是否是墙壁
     """
-    global x
-    global y
-    global dx
-    global dy
+    global x, y, dx, dy
     match face:
         case 1:
             y -= 64
@@ -143,10 +143,43 @@ def update_prop():
     pygame.draw.rect(screen, (0, 0, 0), ((768, 256), (256, 256)), width=10)
 
 
+def help_message(text: str):
+    """
+    :param text: 帮助文本
+    :return:
+    """
+    global screen
+    surface = pygame.Surface((960, 604))
+    surface.fill((192, 192, 192))
+    screen.blit(surface, (32, 32))
+    pygame.draw.rect(screen, (0, 190, 190), ((32, 32), (960, 604)), width=10)
+    count = 0
+    char_width = [font_help.render(char, True, (0, 0, 0)).get_width() for char in text]
+    lines = []
+    current_text = ""
+    for i, chars in enumerate(text):
+        current_text += chars
+        count += char_width[i]
+        if chars == "\n":
+            current_text = current_text[0:len(current_text) - 1]
+            lines.append(current_text)
+            current_text = ""
+            count = 0
+            continue
+        if count > 908:
+            lines.append(current_text)
+            current_text = ""
+            count = 0
+    lines.append(current_text)
+    for i in range(0, len(lines)):
+        text = font_help.render(lines[i], True, (0, 0, 0))
+        screen.blit(text, (46, 42 + 28 * i))
+
+
 def message(text: str, is_lock: bool):
     """
-    :param is_lock: 是否锁住屏幕
     :param text: 信息框文本【自动换行】。
+    :param is_lock: 是否锁住屏幕
     :return: 无
     """
     global can_turn
@@ -163,6 +196,12 @@ def message(text: str, is_lock: bool):
     for i, chars in enumerate(text):
         current_text += chars
         count += char_width[i]
+        if chars == "\n":
+            current_text = current_text[0:len(current_text) - 1]
+            lines.append(current_text)
+            current_text = ""
+            count = 0
+            continue
         if count > 220:
             lines.append(current_text)
             current_text = ""
@@ -197,11 +236,11 @@ def update_attribute():
     surface = pygame.Surface((256, 104))
     surface.fill((192, 192, 192))
     screen.blit(surface, (768, 52))
-    text_life = font_attribute.render("生命：" + str(player_life), True, (0, 0, 0))
+    text_health = font_attribute.render("生命：" + str(player_health), True, (0, 0, 0))
     text_attack = font_attribute.render("攻击：" + str(player_attack), True, (0, 0, 0))
     text_defense = font_attribute.render("防御：" + str(player_defense), True, (0, 0, 0))
     text_money = font_attribute.render("金钱：" + str(player_money), True, (0, 0, 0))
-    screen.blit(text_life, (772, 52))
+    screen.blit(text_health, (772, 52))
     screen.blit(text_attack, (772, 76))
     screen.blit(text_defense, (772, 100))
     screen.blit(text_money, (772, 124))
@@ -236,21 +275,10 @@ def player_move():
     """
     玩家移动，通过全局变量控制，无需参数
     """
-    global player_life
-    global player_attack
-    global player_defense
-    global player_money
-    global red_key
-    global blue_key
-    global green_key
-    global yellow_key
-    global is_fail
-    global can_turn
-    global x
-    global y
-    global dx
-    global dy
-    global current_level
+    global player_health, player_attack, player_defense, player_money
+    global red_key, blue_key, green_key, yellow_key
+    global is_fail, can_turn, current_level
+    global x, y, dx, dy
     if is_fail:
         return
     x = max(32, min(672, x))
@@ -286,14 +314,14 @@ def player_move():
                 message("无法击打" + key, False)
                 match_face()
                 return
-            player_life -= reduce_hp(player_attack, player_defense, int(level.monster[key]["attack"]),
-                                     int(level.monster[key]["defense"]), int(level.monster[key]["life"]))
+            player_health -= reduce_hp(player_attack, player_defense, int(level.monster[key]["attack"]),
+                                       int(level.monster[key]["defense"]), int(level.monster[key]["health"]))
             player_money += int(level.monster[key]["money"])
             message("你战胜了" + key + "，金钱+" + str(level.monster[key]["money"]), False)
     # if lvl[dy - 1][dx - 1] == "slime":
     #     if player_attack < 10:
     #         return x, y, dx, dy
-    #     player_life -= reduce_hp(player_attack, player_defense, 10, 10, 30)
+    #     player_health -= reduce_hp(player_attack, player_defense, 10, 10, 30)
     #     player_money += 5
     #     message("你战胜了史莱姆，金钱 + 5")
     #     can_turn = True
@@ -307,7 +335,7 @@ def player_move():
         player_attack += 5
         message("你吃掉了红宝石，攻击+5", False)
     if lvl[dy - 1][dx - 1] == "emerald":
-        player_life += 200
+        player_health += 200
         message("你吃掉了绿宝石，生命+200", False)
     if lvl[dy - 1][dx - 1] == "yellow-key":
         yellow_key += 1
@@ -387,7 +415,7 @@ def player_move():
     #     case 4:
     #         lvl[dy - 1][dx] = "floor"
     update()
-    if player_life <= 0:
+    if player_health <= 0:
         is_fail = True
         return
     level.floor[current_level] = lvl
@@ -410,18 +438,17 @@ def draw_button(txt: str, b: tuple[int, int, int, int], lvl: tuple[int, int], c:
     pygame.draw.rect(screen, (c[0], c[1], c[2]), ((b[2], b[3]), (b[0], b[1])), width=10)
 
 
-def game_launch():
+def game_help():
     global screen
     global is_exit
+    global help_page
     screen.fill((192, 192, 192))
-    text_start_menu = font_start_menu.render("欢迎来到魔塔世界", True, (190, 10, 60))
-    screen.blit(text_start_menu, (108, 128))
-    pygame.draw.rect(screen, (0, 190, 190), ((400, 300), (200, 100)), 10)
-    pygame.draw.rect(screen, (0, 190, 190), ((400, 430), (200, 100)), 10)
-    text_start_button = font_start_button.render("开始游戏", True, (0, 190, 190))
-    text_help_button = font_start_button.render("帮助", True, (0, 190, 190))
-    screen.blit(text_start_button, (430, 330))
-    screen.blit(text_help_button, (460, 460))
+    help_message(level.help_page[help_page])
+    if help_page != 0:
+        draw_button("上一页", (200, 100, 32, 650), (77, 680), (0, 190, 190))
+    draw_button("返回", (200, 100, 412, 650), (472, 680), (0, 190, 190))
+    if help_page != len(level.help_page) - 1:
+        draw_button("下一页", (200, 100, 792, 650), (837, 680), (0, 190, 190))
     running = True
     while running:
         if is_exit:
@@ -433,7 +460,61 @@ def game_launch():
                 mouse = pygame.mouse.get_pos()
                 mouse_left = mouse[0]
                 mouse_top = mouse[1]
-                if 300 <= mouse_top <= 400 <= mouse_left < 600:
+                if help_page != 0:
+                    if 650 <= mouse_top <= 750 and 32 <= mouse_left <= 232:
+                        draw_button("上一页", (200, 100, 32, 650), (77, 680), (0, 190, 0))
+                    else:
+                        draw_button("上一页", (200, 100, 32, 650), (77, 680), (0, 190, 190))
+                if 650 <= mouse_top <= 750 and 412 <= mouse_left <= 612:
+                    draw_button("返回", (200, 100, 412, 650), (472, 680), (0, 190, 0))
+                else:
+                    draw_button("返回", (200, 100, 412, 650), (472, 680), (0, 190, 190))
+                if help_page != len(level.help_page) - 1:
+                    if 650 <= mouse_top <= 750 and 792 <= mouse_left <= 992:
+                        draw_button("下一页", (200, 100, 792, 650), (837, 680), (0, 190, 0))
+                    else:
+                        draw_button("下一页", (200, 100, 792, 650), (837, 680), (0, 190, 190))
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse = pygame.mouse.get_pos()
+                mouse_left = mouse[0]
+                mouse_top = mouse[1]
+                if help_page != 0:
+                    if 650 <= mouse_top <= 750 and 32 <= mouse_left <= 232:
+                        help_page -= 1
+                        game_help()
+                        running = False
+                if help_page != len(level.help_page) - 1:
+                    if 650 <= mouse_top <= 750 and 792 <= mouse_left <= 992:
+                        help_page += 1
+                        game_help()
+                        running = False
+                if 650 <= mouse_top <= 750 and 412 <= mouse_left <= 612:
+                    game_launch()
+                    running = False
+        pygame.display.flip()
+        pygame.display.update()
+
+
+def game_launch():
+    global screen
+    global is_exit
+    screen.fill((192, 192, 192))
+    text_start_menu = font_start_menu.render("欢迎来到魔塔世界", True, (190, 10, 60))
+    screen.blit(text_start_menu, (108, 128))
+    draw_button("开始游戏", (200, 100, 400, 300), (430, 330), (0, 190, 190))
+    draw_button("帮助", (200, 100, 400, 430), (460, 460), (0, 190, 190))
+    running = True
+    while running:
+        if is_exit:
+            running = False
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                is_exit = True
+            if event.type == pygame.MOUSEMOTION:
+                mouse = pygame.mouse.get_pos()
+                mouse_left = mouse[0]
+                mouse_top = mouse[1]
+                if 300 <= mouse_top <= 400 <= mouse_left <= 600:
                     draw_button("开始游戏", (200, 100, 400, 300), (430, 330), (0, 190, 0))
                 else:
                     draw_button("开始游戏", (200, 100, 400, 300), (430, 330), (0, 190, 190))
@@ -445,11 +526,11 @@ def game_launch():
                 mouse = pygame.mouse.get_pos()
                 mouse_left = mouse[0]
                 mouse_top = mouse[1]
-                if 300 <= mouse_top <= 400 <= mouse_left < 600:
+                if 300 <= mouse_top <= 400 <= mouse_left <= 600:
                     choose_level()
                     running = False
                 if 530 >= mouse_top >= 430 and 600 >= mouse_left >= 400:
-                    choose_level()
+                    game_help()
                     running = False
         pygame.display.flip()
         pygame.display.update()
@@ -457,10 +538,7 @@ def game_launch():
 
 
 def choose_level():
-    global player_life
-    global player_attack
-    global player_defense
-    global player_money
+    global player_health, player_attack, player_defense, player_money
     global is_exit
     global screen
     screen.fill((192, 192, 192))
@@ -508,7 +586,7 @@ def choose_level():
                 mouse_left = mouse[0]
                 mouse_top = mouse[1]
                 if 400 <= mouse_left <= 600 and 100 <= mouse_top <= 200:
-                    player_life = 9999999
+                    player_health = 9999999
                     player_attack = 9999999
                     player_defense = 9999999
                     player_money = 9999999
@@ -516,7 +594,7 @@ def choose_level():
                     start()
                     running = False
                 if 400 <= mouse_left <= 600 and 230 <= mouse_top <= 330:
-                    player_life = 10000
+                    player_health = 10000
                     player_attack = 50
                     player_defense = 50
                     player_money = 200
@@ -524,7 +602,7 @@ def choose_level():
                     start()
                     running = False
                 if 400 <= mouse_left <= 600 and 360 <= mouse_top <= 460:
-                    player_life = 6000
+                    player_health = 6000
                     player_attack = 30
                     player_defense = 30
                     player_money = 150
@@ -532,7 +610,7 @@ def choose_level():
                     start()
                     running = False
                 if 400 <= mouse_left <= 600 and 490 <= mouse_top <= 590:
-                    player_life = 4000
+                    player_health = 4000
                     player_attack = 20
                     player_defense = 15
                     player_money = 100
@@ -545,10 +623,7 @@ def choose_level():
 
 def blit_initial():
     global screen
-    global x
-    global y
-    global dx
-    global dy
+    global x, y, dx, dy
     for i in range(0, 13):
         screen.blit(wall_image, (-32 + i * 64, -32))
     for i in range(0, 13):
@@ -628,9 +703,7 @@ temp_first = True
 
 def initFloor():
     global screen
-    global can_turn
-    global current_level
-    global temp_first
+    global can_turn, current_level, temp_first
     blit_initial()
     update()
     if temp_first:
@@ -640,15 +713,9 @@ def initFloor():
 
 def start():
     global screen
-    global can_turn
-    global is_exit
-    global is_fail
+    global can_turn, is_exit, is_fail
     global current_level
-    global x
-    global y
-    global dx
-    global dy
-    global face
+    global x, y, dx, dy, face
     running = True
     while running:
         if is_exit:
