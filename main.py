@@ -22,7 +22,7 @@ pygame.display.set_caption("Magic Tower Remake 2 Fantastic Work!!")  # 设定窗
 
 player_health = 0  # 玩家生命
 player_attack = 0  # 玩家攻击
-player_defense = 0  # 玩家防御
+player_defence = 0  # 玩家防御
 player_money = 0  # 玩家金钱
 
 yellow_key = 0  # 黄钥匙个数
@@ -52,7 +52,9 @@ green_key_image = pygame.image.load(".\\image\\green_key.png")  # 绿钥匙
 blue_key_image = pygame.image.load(".\\image\\blue_key.png")  # 蓝钥匙
 yellow_key_image = pygame.image.load(".\\image\\yellow_key.png")  # 黄钥匙
 red_key_image = pygame.image.load(".\\image\\red_key.png")  # 红钥匙
-ice_magic_image = pygame.image.load(".\\image\\ice_magic.png")
+
+ice_magic_image = pygame.image.load(".\\image\\ice_magic.png")  # 冰冻魔法
+lucky_coin_image = pygame.image.load(".\\image\\lucky_coin.png")  # 幸运金币
 
 green_slime_image = pygame.image.load(".\\image\\green_slime.png")  # 绿色史莱姆
 blue_slime_image = pygame.image.load(".\\image\\blue_slime.png")  # 蓝色史莱姆
@@ -71,10 +73,14 @@ font_message = pygame.font.Font(".\\font\\msyh.ttc", 16)  # 信息框字体
 font_level = pygame.font.Font(".\\font\\msyh.ttc", 42)  # 楼层字体
 font_help = pygame.font.Font(".\\font\\msyh.ttc", 24)  # 帮助字体
 
+villager_image = pygame.image.load(".\\image\\villager.png")  # 商人
+
 can_turn = True  # 玩家此时是否可以行走
 is_exit = False  # 是否直接退出游戏
 is_fail = False  # 是否失败
+
 ice_magic = False  # 是否拥有冰冻魔法
+lucky_coin = False
 
 current_level = 0  # 当前楼层
 face = 1  # 玩家朝向【1：前、2：后、3：左、4：右】
@@ -84,7 +90,7 @@ y = 0  # 当前走过的纵坐标真实值
 dx = 0  # 当前走过的横坐标比例值
 dy = 0  # 当前走过的纵坐标比例值
 
-help_page = 0
+help_page = 0  # 帮助索引页面。
 
 
 def match_face():
@@ -107,18 +113,18 @@ def match_face():
             dx -= 1
 
 
-def reduce_hp(own_attack: int, own_defense: int, enemy_attack: int, enemy_defense: int, enemy_hp: int):
+def reduce_hp(own_attack: int, own_defence: int, enemy_attack: int, enemy_defence: int, enemy_hp: int):
     """
     :param own_attack: 己方攻击
-    :param own_defense: 己方防御
+    :param own_defence: 己方防御
     :param enemy_attack: 敌方攻击
-    :param enemy_defense: 敌方防御
+    :param enemy_defence: 敌方防御
     :param enemy_hp: 敌方血量
     :return: 己方克除血量
     """
-    if enemy_attack <= own_defense:
+    if enemy_attack <= own_defence:
         return 0
-    red = (round(enemy_hp / (own_attack - enemy_defense))) * (enemy_attack - own_defense)
+    red = (round(enemy_hp / (own_attack - enemy_defence))) * (enemy_attack - own_defence)
     if red < 0:
         red = 0
     return red
@@ -146,6 +152,8 @@ def update_prop():
     pygame.draw.rect(screen, (0, 0, 0), ((768, 256), (256, 256)), width=1)
     if ice_magic:
         screen.blit(ice_magic_image, (768, 256))
+    if lucky_coin:
+        screen.blit(lucky_coin_image, (832, 256))
 
 
 def help_message(text: str):
@@ -243,11 +251,11 @@ def update_attribute():
     screen.blit(surface, (768, 52))
     text_health = font_attribute.render("生命：" + str(player_health), True, (0, 0, 0))
     text_attack = font_attribute.render("攻击：" + str(player_attack), True, (0, 0, 0))
-    text_defense = font_attribute.render("防御：" + str(player_defense), True, (0, 0, 0))
+    text_defence = font_attribute.render("防御：" + str(player_defence), True, (0, 0, 0))
     text_money = font_attribute.render("金钱：" + str(player_money), True, (0, 0, 0))
     screen.blit(text_health, (772, 52))
     screen.blit(text_attack, (772, 76))
-    screen.blit(text_defense, (772, 100))
+    screen.blit(text_defence, (772, 100))
     screen.blit(text_money, (772, 124))
 
 
@@ -280,11 +288,11 @@ def player_move():
     """
     玩家移动，通过全局变量控制，无需参数
     """
-    global player_health, player_attack, player_defense, player_money
+    global player_health, player_attack, player_defence, player_money
     global red_key, blue_key, green_key, yellow_key
     global is_fail, can_turn, current_level
     global x, y, dx, dy
-    global ice_magic
+    global ice_magic, lucky_coin
     if is_fail:
         return
     x = max(32, min(672, x))
@@ -316,18 +324,22 @@ def player_move():
 
     for key in level.monster.keys():
         if lvl[dy - 1][dx - 1] == key:
-            if player_attack < int(level.monster[key]["defense"]):
+            if player_attack < int(level.monster[key]["defence"]):
                 message("无法击打" + key, False)
                 match_face()
                 return
-            player_health -= reduce_hp(player_attack, player_defense, int(level.monster[key]["attack"]),
-                                       int(level.monster[key]["defense"]), int(level.monster[key]["health"]))
-            player_money += int(level.monster[key]["money"])
-            message("你战胜了" + key + "，金钱+" + str(level.monster[key]["money"]), False)
+            player_health -= reduce_hp(player_attack, player_defence, int(level.monster[key]["attack"]),
+                                       int(level.monster[key]["defence"]), int(level.monster[key]["health"]))
+            if lucky_coin:
+                player_money += int(level.monster[key]["money"]) * 2
+                message("你战胜了" + key + "，金钱+" + str(level.monster[key]["money"] * 2), False)
+            else:
+                player_money += int(level.monster[key]["money"])
+                message("你战胜了" + key + "，金钱+" + str(level.monster[key]["money"]), False)
     # if lvl[dy - 1][dx - 1] == "slime":
     #     if player_attack < 10:
     #         return x, y, dx, dy
-    #     player_health -= reduce_hp(player_attack, player_defense, 10, 10, 30)
+    #     player_health -= reduce_hp(player_attack, player_defence, 10, 10, 30)
     #     player_money += 5
     #     message("你战胜了史莱姆，金钱 + 5")
     #     can_turn = True
@@ -335,7 +347,7 @@ def player_move():
         player_money += 20
         message("你吃掉了黄宝石，金钱+20", False)
     if lvl[dy - 1][dx - 1] == "sapphire":
-        player_defense += 5
+        player_defence += 5
         message("你吃掉了蓝宝石，防御+5", False)
     if lvl[dy - 1][dx - 1] == "ruby":
         player_attack += 5
@@ -411,6 +423,9 @@ def player_move():
     if lvl[dy - 1][dx - 1] == "ice-magic":
         message("获得”冰冻魔法“", False)
         ice_magic = True
+    if lvl[dy - 1][dx - 1] == "lucky-coin":
+        message("获得”幸运金币“，金钱 * 2", False)
+        lucky_coin = True
     if lvl[dy - 1][dx - 1] == "lava":
         if not ice_magic:
             message("你不能穿过这里。", False)
@@ -418,6 +433,15 @@ def player_move():
             return
         else:
             message("你熄灭了岩浆。", False)
+    if lvl[dy - 1][dx - 1] == "fake-wall":
+        message("你遇到了假墙壁", False)
+        lvl[dy - 1][dx - 1] = "floor"
+    if lvl[dy - 1][dx - 1] == "fake-floor":
+        message("你遇到了假地板", False)
+        lvl[dy - 1][dx - 1] = "wall"
+        blit_wall()
+        match_face()
+        return
 
     lvl[dy - 1][dx - 1] = "player"
     # match face:
@@ -554,7 +578,7 @@ def game_launch():
 
 
 def choose_level():
-    global player_health, player_attack, player_defense, player_money
+    global player_health, player_attack, player_defence, player_money
     global is_exit
     global screen
     screen.fill((192, 192, 192))
@@ -604,7 +628,7 @@ def choose_level():
                 if 400 <= mouse_left <= 600 and 100 <= mouse_top <= 200:
                     player_health = 9999999
                     player_attack = 9999999
-                    player_defense = 9999999
+                    player_defence = 9999999
                     player_money = 9999999
                     initFloor()
                     start()
@@ -612,7 +636,7 @@ def choose_level():
                 if 400 <= mouse_left <= 600 and 230 <= mouse_top <= 330:
                     player_health = 10000
                     player_attack = 50
-                    player_defense = 50
+                    player_defence = 50
                     player_money = 200
                     initFloor()
                     start()
@@ -620,7 +644,7 @@ def choose_level():
                 if 400 <= mouse_left <= 600 and 360 <= mouse_top <= 460:
                     player_health = 6000
                     player_attack = 30
-                    player_defense = 30
+                    player_defence = 30
                     player_money = 150
                     initFloor()
                     start()
@@ -628,13 +652,20 @@ def choose_level():
                 if 400 <= mouse_left <= 600 and 490 <= mouse_top <= 590:
                     player_health = 4000
                     player_attack = 20
-                    player_defense = 15
+                    player_defence = 15
                     player_money = 100
                     initFloor()
                     start()
                     running = False
         pygame.display.flip()
         pygame.display.update()
+
+
+def blit_wall():
+    for i in range(0, len(level.floor[current_level])):
+        for j in range(0, len(level.floor[current_level][i])):
+            if "wall" in level.floor[current_level][i][j]:
+                screen.blit(wall_image, (32 + j * 64, 32 + i * 64))
 
 
 def blit_initial():
@@ -657,9 +688,11 @@ def blit_initial():
     dy = 672
     for i in range(0, len(level.floor[current_level])):
         for j in range(0, len(level.floor[current_level][i])):
+            if level.floor[current_level][i][j] == "lucky-coin":
+                screen.blit(lucky_coin_image, (32 + j * 64, 32 + i * 64))
             if level.floor[current_level][i][j] == "ice-magic":
                 screen.blit(ice_magic_image, (32 + j * 64, 32 + i * 64))
-            if level.floor[current_level][i][j] == "wall":
+            if "wall" in level.floor[current_level][i][j]:
                 screen.blit(wall_image, (32 + j * 64, 32 + i * 64))
             if level.floor[current_level][i][j] == "lava":
                 screen.blit(lava_image, (32 + j * 64, 32 + i * 64))
