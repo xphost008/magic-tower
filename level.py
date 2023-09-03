@@ -1,15 +1,12 @@
 """
 11 x 11的空间自由发挥！
+level为一个列表，第一层套层数，第二层套竖排，第三层套横排
 
 所有普通道具
 [wall]：墙壁【已完成】
 [fake-wall]：假墙壁，走过去自动变成地板。【已完成】
 [floor]：可以行走的地板【已完成】
 [fake-floor]：假地板，走过去自动变成墙壁。【已完成】
-[emerald]：绿宝石 + 200 health【已完成】
-[ruby]：红宝石 + 5 attack【已完成】
-[sapphire]：蓝宝石 + 5 defence【已完成】
-[topaz]：黄宝石 + 10 money【已完成】
 [yellow-key]：黄钥匙【已完成】
 [blue-key]：蓝钥匙【已完成】
 [red-key]：红钥匙【已完成】
@@ -35,9 +32,23 @@
 [lucky-coin]幸运金币：杀死怪物后双倍掉落金钱【已完成】
 [ice-magic]冰冻魔法：走过去岩浆自动消失
 
-[villager-<name>]：自定义售卖商人，在villager中自定义。
+[emerald]：绿宝石 + 200 health【已完成】
+[ruby]：红宝石 + 5 attack【已完成】
+[sapphire]：蓝宝石 + 5 defence【已完成】
+[topaz]：黄宝石 + 10 money【已完成】
+所有宝石的加成成效在这里自定义，其中这里是默认的。
+
+[villager-<name>]：自定义售卖商人，在villager中自定义。定义方式与monster类似。
 其中，商人类里有字符串模板可以替换使用。但是只有${sell_count}可以替换成目前售卖次数。如果想指定无数次，可以使用9999999代替。
-且目前sell中只提供：【attack】
+且目前sell中只提供：【attack、defence、health、red-key、blue-key、yellow-key、green-key，如果出现其他的，则报错。】
+count为点数、如attack += 20。money为消耗的金钱。
+商人不会消失。
+商人贴图是棕色的
+
+[messenger-<name>]：自定义传话人，在魔塔中作为剧情推进的存在。
+say是一个列表，为信息框，按下回车可以继续。
+传话人在说完所有话后会自动消失。
+传话人贴图是青蓝色的
 
 所有怪物
 [green-slime]：绿色史莱姆。【已完成】
@@ -54,19 +65,34 @@
 克除生命值的公式是：
 克除 = (敌血 ÷ (己攻 - 敌防) - 1) * (敌攻 - 己防)
 
+帮助文档使用help-page书写，它可以分页。使用Python列表特性即可让其分页显示。
+
 """
 
-villager = {
-    "floor3": {
+ruby = 5  # 在这自定义宝石成效
+sapphire = 5
+topaz = 20
+emerald = 200
+
+villager = {  # 在这里自定义商人
+    "villager-red-key": {
         "sell": "red-key",
         "count": 1,
         "money": 200,
-        "sell-count": 2,
-        "say": "我有${sell-count}把红钥匙，200金币1把，你要不要？",
+        "say": "卖红钥匙咯！200金币1把，你要不要？",
     }
 }
 
-monster = {
+messenger = {  # 在这里自定义传话人
+    "messenger-tips": {
+        "say": [
+            "千万不要捡起上面有笑脸的金币，因为那会让你杀怪的时候掉落比以往少的金钱。",
+            "一定要捡起冰冻魔法，它长得像一个蜘蛛网，无需点击即可使用。可以走过岩浆噢！"
+        ]
+    }
+}
+
+monster = {  # 在这里自定义怪物
     "yellow-slime": {
         "health": 20,
         "attack": 7,
@@ -93,9 +119,10 @@ monster = {
     }
 }
 
-floor = [
+floor = [  # 在这里自定义楼层
     [
-        ["upstairs", "wall", "floor", "wall", "green-door", "fake-wall", "floor", "fake-floor", "floor", "floor", "ice-magic"],
+        ["upstairs", "wall", "floor", "wall", "green-door", "fake-wall", "floor", "fake-floor", "floor", "floor",
+         "ice-magic"],
         ["floor", "wall", "floor", "wall", "floor", "floor", "floor", "green-slime", "floor", "topaz", "floor"],
         ["yellow-key", "wall", "floor", "sapphire", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
         ["blue-key", "wall", "floor", "wall", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
@@ -119,12 +146,12 @@ floor = [
         ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
         ["floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall"],
         ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
-        ["floor", "floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "floor"],
-        ["upstairs", "ruby", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+        ["floor", "floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "floor", "floor"],
+        ["upstairs", "ruby", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "messenger-tips"],
     ],
     [
         ["downstairs", "player", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
-        ["blue-door", "floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "villager-floor3"],
+        ["blue-door", "floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "villager-red-key"],
         ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
         ["floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "yellow-door"],
         ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
@@ -133,11 +160,12 @@ floor = [
         ["floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "yellow-door"],
         ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
         ["green-door", "floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "floor"],
-        ["topaz", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+        ["topaz", "red-door", "red-door", "red-door", "red-door", "red-door", "red-door", "red-door", "red-door",
+         "red-door", "red-door"],
     ]
 ]
 
-help_page = [
+help_page = [  # 在这里自定义帮助文档。
     "难度部分：\n" +
     "    作弊模式：生命：9999999、攻击：9999999、防御：9999999、金钱：9999999\n" +
     "    简单模式：生命：10000、攻击：50、防御：50、金钱：200\n" +
@@ -159,12 +187,12 @@ help_page = [
     "    红色史莱姆：生命：50、攻击：15、防御：15、金钱：10",
     "道具部分：\n" +
     "    冰冻魔法：可以走岩浆如履平地。\n"
-    "    幸运金币：获得之后，击杀怪物可以获得双倍金币。" +
+    "    幸运金币：获得之后，击杀怪物可以获得双倍金币。\n" +
     "墙壁部分：\n" +
     "    红门：需要红钥匙可以打开\n" +
     "    蓝门：需要蓝钥匙可以打开\n"
     "    黄门：需要黄钥匙可以打开\n"
     "    绿门：需要绿钥匙可以打开\n"
     "    岩浆：需要冰冻魔法方可安全通行\n"
-    "商人部分具体按照具体来定。"
+    "商人部分具体价格按照具体来定。"
 ]

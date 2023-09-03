@@ -74,6 +74,8 @@ font_level = pygame.font.Font(".\\font\\msyh.ttc", 42)  # 楼层字体
 font_help = pygame.font.Font(".\\font\\msyh.ttc", 24)  # 帮助字体
 
 villager_image = pygame.image.load(".\\image\\villager.png")  # 商人
+messenger_image = pygame.image.load(".\\image\\messenger.png")  # 传话人
+error_image = pygame.image.load(".\\image\\error.png")  # 错误贴图
 
 can_turn = True  # 玩家此时是否可以行走
 is_exit = False  # 是否直接退出游戏
@@ -84,6 +86,10 @@ lucky_coin = False
 
 current_level = 0  # 当前楼层
 face = 1  # 玩家朝向【1：前、2：后、3：左、4：右】
+
+villager_sell = ""
+villager_count = 0
+villager_money = 0
 
 x = 0  # 当前走过的横坐标真实值
 y = 0  # 当前走过的纵坐标真实值
@@ -96,6 +102,7 @@ help_page = 0  # 帮助索引页面。
 def match_face():
     """
     匹配玩家的朝向，从而判定此时是否是墙壁
+    也可以用于判断未能通过区域。例如没钥匙的时候撞门。
     """
     global x, y, dx, dy
     match face:
@@ -111,6 +118,30 @@ def match_face():
         case 4:
             x -= 64
             dx -= 1
+
+
+def return_pre_face():
+    global x, y, dx, dy
+    match face:
+        case 1:
+            return x, y + 64, dx, dy + 1
+        case 2:
+            return x, y - 64, dx, dy - 1
+        case 3:
+            return x - 64, y, dx - 1, dy
+        case 4:
+            return x + 64, y, dx + 1, dy
+
+def draw_player():
+    match face:
+        case 1:
+            screen.blit(player_face_image, (x, y))
+        case 2:
+            screen.blit(player_back_image, (x, y))
+        case 3:
+            screen.blit(player_left_image, (x, y))
+        case 4:
+            screen.blit(player_right_image, (x, y))
 
 
 def reduce_hp(own_attack: int, own_defence: int, enemy_attack: int, enemy_defence: int, enemy_hp: int):
@@ -198,6 +229,8 @@ def message(text: str, is_lock: bool):
     global can_turn
     global screen
     global is_exit
+    global player_money, player_attack, player_health, player_defence
+    global red_key, yellow_key, blue_key, green_key
     surface = pygame.Surface((256, 256))
     surface.fill((192, 192, 192))
     screen.blit(surface, (768, 512))
@@ -229,14 +262,44 @@ def message(text: str, is_lock: bool):
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit()
-                    # is_exit = True
-                    # running = False
+                    is_exit = True
+                    running = False
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
-                        screen.blit(surface, (768, 512))
-                        pygame.draw.rect(screen, (0, 0, 0), ((768, 512), (256, 256)), width=10)
-                        running = False
+                        if villager_sell == "":
+                            screen.blit(surface, (768, 512))
+                            pygame.draw.rect(screen, (0, 0, 0), ((768, 512), (256, 256)), width=10)
+                            running = False
+                    if event.key == pygame.K_y:
+                        if villager_sell != "":
+                            if player_money >= villager_money:
+                                player_money -= villager_money
+                                if villager_sell == "attack":
+                                    player_attack += villager_count
+                                elif villager_sell == "health":
+                                    player_health += villager_count
+                                elif villager_sell == "defence":
+                                    player_defence += villager_count
+                                elif villager_sell == "red-key":
+                                    red_key += villager_count
+                                elif villager_sell == "yellow-key":
+                                    yellow_key += villager_count
+                                elif villager_sell == "blue-key":
+                                    blue_key += villager_count
+                                elif villager_sell == "green-key":
+                                    green_key += villager_count
+                                message("交易愉快！", False)
+                                update()
+                                running = False
+                            else:
+                                message("金钱不够……", False)
+                                running = False
+                    if event.key == pygame.K_n:
+                        if villager_sell != "":
+                            message("你取消了交易。", False)
+                            update()
+                            running = False
+            draw_player()
             pygame.display.flip()
             pygame.display.update()
 
@@ -293,6 +356,7 @@ def player_move():
     global is_fail, can_turn, current_level
     global x, y, dx, dy
     global ice_magic, lucky_coin
+    global villager_sell, villager_money, villager_count
     if is_fail:
         return
     x = max(32, min(672, x))
@@ -300,28 +364,9 @@ def player_move():
     dx = max(1, min(11, dx))
     dy = max(1, min(11, dy))
     lvl = level.floor[current_level]
-    match face:
-        case 1:
-            if lvl[dy - 1][dx - 1] == "wall":
-                y -= 64
-                dy -= 1
-                return
-        case 2:
-            if lvl[dy - 1][dx - 1] == "wall":
-                y += 64
-                dy += 1
-                return
-        case 3:
-            if lvl[dy - 1][dx - 1] == "wall":
-                x += 64
-                dx += 1
-                return
-        case 4:
-            if lvl[dy - 1][dx - 1] == "wall":
-                x -= 64
-                dx -= 1
-                return
-
+    if lvl[dy - 1][dx - 1] == "wall":
+        match_face()
+        return
     for key in level.monster.keys():
         if lvl[dy - 1][dx - 1] == key:
             if player_attack < int(level.monster[key]["defence"]):
@@ -343,18 +388,40 @@ def player_move():
     #     player_money += 5
     #     message("你战胜了史莱姆，金钱 + 5")
     #     can_turn = True
+    for key in level.villager.keys():
+        if lvl[dy - 1][dx - 1] == key:
+            match_face()
+            villager_sell = str(level.villager[key]["sell"])
+            villager_count = int(level.villager[key]["count"])
+            villager_money = int(level.villager[key]["money"])
+            message(level.villager[key]["say"] + "\n按Y确定，按N取消", True)
+            can_turn = True
+            villager_sell = ""
+            villager_count = 0
+            villager_money = 0
+            return
+    for key in level.messenger.keys():
+        if lvl[dy - 1][dx - 1] == key:
+            lvl[dy - 1][dx - 1] = "floor"
+            match_face()
+            for say in level.messenger[key]["say"]:
+                message(say, True)
+            can_turn = True
+            tx, ty, tdx, tdy = return_pre_face()
+            screen.blit(floor_image, (tx, ty))
+            return
     if lvl[dy - 1][dx - 1] == "topaz":
         player_money += 20
-        message("你吃掉了黄宝石，金钱+20", False)
+        message("你吃掉了黄宝石，金钱+" + str(level.topaz), False)
     if lvl[dy - 1][dx - 1] == "sapphire":
-        player_defence += 5
-        message("你吃掉了蓝宝石，防御+5", False)
+        player_defence += level.sapphire
+        message("你吃掉了蓝宝石，防御+" + str(level.sapphire), False)
     if lvl[dy - 1][dx - 1] == "ruby":
-        player_attack += 5
-        message("你吃掉了红宝石，攻击+5", False)
+        player_attack += level.ruby
+        message("你吃掉了红宝石，攻击+" + str(level.ruby), False)
     if lvl[dy - 1][dx - 1] == "emerald":
-        player_health += 200
-        message("你吃掉了绿宝石，生命+200", False)
+        player_health += level.emerald
+        message("你吃掉了绿宝石，生命+" + str(level.emerald), False)
     if lvl[dy - 1][dx - 1] == "yellow-key":
         yellow_key += 1
         message("你得到了黄钥匙", False)
@@ -439,7 +506,7 @@ def player_move():
     if lvl[dy - 1][dx - 1] == "fake-floor":
         message("你遇到了假地板", False)
         lvl[dy - 1][dx - 1] = "wall"
-        blit_wall()
+        screen.blit(wall_image, (x, y))
         match_face()
         return
 
@@ -459,7 +526,6 @@ def player_move():
         is_fail = True
         return
     level.floor[current_level] = lvl
-    return
 
 
 def draw_button(txt: str, b: tuple[int, int, int, int], lvl: tuple[int, int], c: tuple[int, int, int]):
@@ -661,13 +727,6 @@ def choose_level():
         pygame.display.update()
 
 
-def blit_wall():
-    for i in range(0, len(level.floor[current_level])):
-        for j in range(0, len(level.floor[current_level][i])):
-            if "wall" in level.floor[current_level][i][j]:
-                screen.blit(wall_image, (32 + j * 64, 32 + i * 64))
-
-
 def blit_initial():
     global screen
     global x, y, dx, dy
@@ -690,54 +749,62 @@ def blit_initial():
         for j in range(0, len(level.floor[current_level][i])):
             if level.floor[current_level][i][j] == "lucky-coin":
                 screen.blit(lucky_coin_image, (32 + j * 64, 32 + i * 64))
-            if level.floor[current_level][i][j] == "ice-magic":
+            elif level.floor[current_level][i][j] == "ice-magic":
                 screen.blit(ice_magic_image, (32 + j * 64, 32 + i * 64))
-            if "wall" in level.floor[current_level][i][j]:
+            elif "wall" in level.floor[current_level][i][j]:
                 screen.blit(wall_image, (32 + j * 64, 32 + i * 64))
-            if level.floor[current_level][i][j] == "lava":
+            elif "floor" in level.floor[current_level][i][j]:
+                pass
+            elif level.floor[current_level][i][j] == "lava":
                 screen.blit(lava_image, (32 + j * 64, 32 + i * 64))
-            if level.floor[current_level][i][j] == "upstairs":
+            elif level.floor[current_level][i][j] == "upstairs":
                 screen.blit(upstairs, (32 + j * 64, 32 + i * 64))
-            if level.floor[current_level][i][j] == "downstairs":
+            elif level.floor[current_level][i][j] == "downstairs":
                 screen.blit(downstairs, (32 + j * 64, 32 + i * 64))
-            if level.floor[current_level][i][j] == "emerald":
+            elif level.floor[current_level][i][j] == "emerald":
                 screen.blit(emerald_image, (32 + j * 64, 32 + i * 64))
-            if level.floor[current_level][i][j] == "ruby":
+            elif level.floor[current_level][i][j] == "ruby":
                 screen.blit(ruby_image, (32 + j * 64, 32 + i * 64))
-            if level.floor[current_level][i][j] == "sapphire":
+            elif level.floor[current_level][i][j] == "sapphire":
                 screen.blit(sapphire_image, (32 + j * 64, 32 + i * 64))
-            if level.floor[current_level][i][j] == "topaz":
+            elif level.floor[current_level][i][j] == "topaz":
                 screen.blit(topaz_image, (32 + j * 64, 32 + i * 64))
-            if level.floor[current_level][i][j] == "green-slime":
+            elif level.floor[current_level][i][j] == "green-slime":
                 screen.blit(green_slime_image, (32 + j * 64, 32 + i * 64))
-            if level.floor[current_level][i][j] == "red-slime":
+            elif level.floor[current_level][i][j] == "red-slime":
                 screen.blit(red_slime_image, (32 + j * 64, 32 + i * 64))
-            if level.floor[current_level][i][j] == "blue-slime":
+            elif level.floor[current_level][i][j] == "blue-slime":
                 screen.blit(blue_slime_image, (32 + j * 64, 32 + i * 64))
-            if level.floor[current_level][i][j] == "yellow-slime":
+            elif level.floor[current_level][i][j] == "yellow-slime":
                 screen.blit(yellow_slime_image, (32 + j * 64, 32 + i * 64))
-            if level.floor[current_level][i][j] == "red-key":
+            elif level.floor[current_level][i][j] == "red-key":
                 screen.blit(red_key_image, (32 + j * 64, 32 + i * 64))
-            if level.floor[current_level][i][j] == "blue-key":
+            elif level.floor[current_level][i][j] == "blue-key":
                 screen.blit(blue_key_image, (32 + j * 64, 32 + i * 64))
-            if level.floor[current_level][i][j] == "green-key":
+            elif level.floor[current_level][i][j] == "green-key":
                 screen.blit(green_key_image, (32 + j * 64, 32 + i * 64))
-            if level.floor[current_level][i][j] == "yellow-key":
+            elif level.floor[current_level][i][j] == "yellow-key":
                 screen.blit(yellow_key_image, (32 + j * 64, 32 + i * 64))
-            if level.floor[current_level][i][j] == "red-door":
+            elif level.floor[current_level][i][j] == "red-door":
                 screen.blit(red_door_image, (32 + j * 64, 32 + i * 64))
-            if level.floor[current_level][i][j] == "blue-door":
+            elif level.floor[current_level][i][j] == "blue-door":
                 screen.blit(blue_door_image, (32 + j * 64, 32 + i * 64))
-            if level.floor[current_level][i][j] == "green-door":
+            elif level.floor[current_level][i][j] == "green-door":
                 screen.blit(green_door_image, (32 + j * 64, 32 + i * 64))
-            if level.floor[current_level][i][j] == "yellow-door":
+            elif level.floor[current_level][i][j] == "yellow-door":
                 screen.blit(yellow_door_image, (32 + j * 64, 32 + i * 64))
-            if level.floor[current_level][i][j] == "player":
+            elif "villager" in level.floor[current_level][i][j]:
+                screen.blit(villager_image, (32 + j * 64, 32 + i * 64))
+            elif "messenger" in level.floor[current_level][i][j]:
+                screen.blit(messenger_image, (32 + j * 64, 32 + i * 64))
+            elif level.floor[current_level][i][j] == "player":
                 screen.blit(player_face_image, (32 + j * 64, 32 + i * 64))
                 dx = j + 1
                 dy = i + 1
                 x = (32 + j * 64)
                 y = (32 + i * 64)
+            else:
+                screen.blit(error_image, (32 + j * 64, 32 + i * 64))
 
 
 def init():
@@ -807,15 +874,7 @@ def start():
             if event.type == pygame.MOUSEBUTTONDOWN:  # 使用道具
                 pass
         player_move()
-        match face:
-            case 1:
-                screen.blit(player_face_image, (x, y))
-            case 2:
-                screen.blit(player_back_image, (x, y))
-            case 3:
-                screen.blit(player_left_image, (x, y))
-            case 4:
-                screen.blit(player_right_image, (x, y))
+        draw_player()
         if is_fail:
             screen.blit(failed_image, (x, y))
             message("你输了，你打了不该打的怪物……按下回车键退出游戏……", True)
