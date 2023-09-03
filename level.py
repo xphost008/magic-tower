@@ -62,6 +62,12 @@ say是一个列表，为信息框，按下回车可以继续。
 如果己方攻击力低于敌方防御力，则不予攻击。
 如果己方防御力低于对方攻击力，则必然克血。
 
+[easy]：简单难度配置。
+[normal]：普通难度配置。
+[hard]：困难难度配置。
+
+难度配置选项在列表中有health、attack、defence、money。
+
 克除生命值的公式是：
 克除 = (敌血 ÷ (己攻 - 敌防) - 1) * (敌攻 - 己防)
 
@@ -69,130 +75,168 @@ say是一个列表，为信息框，按下回车可以继续。
 
 """
 
-ruby = 5  # 在这自定义宝石成效
-sapphire = 5
-topaz = 20
-emerald = 200
+import json
+import os
 
-villager = {  # 在这里自定义商人
-    "villager-red-key": {
-        "sell": "red-key",
-        "count": 1,
-        "money": 200,
-        "say": "卖红钥匙咯！200金币1把，你要不要？",
-    }
-}
+config = {
+    "ruby": 5,
+    "sapphire": 5,
+    "topaz": 20,
+    "emerald": 200,
+    "villager": {  # 在这里自定义商人
+        "villager-red-key": {
+            "sell": "red-key",
+            "count": 1,
+            "money": 200,
+            "say": "卖红钥匙咯！200金钱1把，你要不要？",
+        }
+    },
+    "difficulty": {
+        "easy": {
+            "health": 10000,
+            "attack": 50,
+            "defence": 50,
+            "money": 200
+        },
+        "normal": {
+            "health": 6000,
+            "attack": 30,
+            "defence": 30,
+            "money": 150
+        },
+        "hard": {
+            "health": 4000,
+            "attack": 20,
+            "defence": 20,
+            "money": 100
+        },
+    },
 
-messenger = {  # 在这里自定义传话人
-    "messenger-tips": {
-        "say": [
-            "千万不要捡起上面有笑脸的金币，因为那会让你杀怪的时候掉落比以往少的金钱。",
-            "一定要捡起冰冻魔法，它长得像一个蜘蛛网，无需点击即可使用。可以走过岩浆噢！"
+    "messenger": {  # 在这里自定义传话人
+        "messenger-tips": {
+            "say": [
+                "千万不要捡起上面有笑脸的金币，因为那会让你杀怪的时候掉落比以往少的金钱。",
+                "一定要捡起冰冻魔法，它长得像一个蜘蛛网，无需点击即可使用。可以走过岩浆噢！"
+            ]
+        }
+    },
+
+    "monster": {  # 在这里自定义怪物
+        "yellow-slime": {
+            "health": 20,
+            "attack": 7,
+            "defence": 7,
+            "money": 5
+        },
+        "green-slime": {
+            "health": 30,
+            "attack": 10,
+            "defence": 10,
+            "money": 8,
+        },
+        "red-slime": {
+            "health": 50,
+            "attack": 15,
+            "defence": 15,
+            "money": 10,
+        },
+        "blue-slime": {
+            "health": 80,
+            "attack": 20,
+            "defence": 20,
+            "money": 15
+        }
+    },
+
+    "floor": [  # 在这里自定义楼层
+        [
+            ["upstairs", "wall", "floor", "wall", "green-door", "fake-wall", "floor", "fake-floor", "floor", "floor",
+             "ice-magic"],
+            ["floor", "wall", "floor", "wall", "floor", "floor", "floor", "green-slime", "floor", "topaz", "floor"],
+            ["yellow-key", "wall", "floor", "sapphire", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["blue-key", "wall", "floor", "wall", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["red-key", "wall", "floor", "red-door", "floor", "floor", "floor", "floor", "floor", "wall", "floor"],
+            ["green-key", "wall", "floor", "wall", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["emerald", "wall", "floor", "blue-door", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["floor", "wall", "floor", "wall", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["floor", "floor", "floor", "green-door", "floor", "floor", "floor", "ruby", "floor", "floor", "floor"],
+            ["yellow-slime", "wall", "floor", "wall", "floor", "floor", "player", "floor", "floor", "floor", "floor"],
+            ["blue-slime", "green-slime", "red-slime", "yellow-door", "green-key", "floor", "floor", "floor", "floor",
+             "floor", "floor"],
+        ],
+        [
+            ["downstairs", "player", "yellow-key", "yellow-key", "floor", "floor", "floor", "floor", "floor", "floor",
+             "floor"],
+            ["floor", "floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "floor"],
+            ["floor", "floor", "green-key", "green-key", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["lava", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall"],
+            ["floor", "floor", "floor", "blue-key", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "lucky-coin"],
+            ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall"],
+            ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["floor", "floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "floor", "floor"],
+            ["upstairs", "ruby", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor",
+             "messenger-tips"],
+        ],
+        [
+            ["downstairs", "player", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["blue-door", "floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "villager-red-key"],
+            ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "yellow-door"],
+            ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["green-door", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "floor"],
+            ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "yellow-door"],
+            ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["green-door", "floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "floor"],
+            ["topaz", "red-door", "red-door", "red-door", "red-door", "red-door", "red-door", "red-door", "red-door",
+             "red-door", "red-door"],
         ]
-    }
-}
-
-monster = {  # 在这里自定义怪物
-    "yellow-slime": {
-        "health": 20,
-        "attack": 7,
-        "defence": 7,
-        "money": 5
-    },
-    "green-slime": {
-        "health": 30,
-        "attack": 10,
-        "defence": 10,
-        "money": 8,
-    },
-    "red-slime": {
-        "health": 50,
-        "attack": 15,
-        "defence": 15,
-        "money": 10,
-    },
-    "blue-slime": {
-        "health": 80,
-        "attack": 20,
-        "defence": 20,
-        "money": 15
-    }
-}
-
-floor = [  # 在这里自定义楼层
-    [
-        ["upstairs", "wall", "floor", "wall", "green-door", "fake-wall", "floor", "fake-floor", "floor", "floor",
-         "ice-magic"],
-        ["floor", "wall", "floor", "wall", "floor", "floor", "floor", "green-slime", "floor", "topaz", "floor"],
-        ["yellow-key", "wall", "floor", "sapphire", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
-        ["blue-key", "wall", "floor", "wall", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
-        ["red-key", "wall", "floor", "red-door", "floor", "floor", "floor", "floor", "floor", "wall", "floor"],
-        ["green-key", "wall", "floor", "wall", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
-        ["emerald", "wall", "floor", "blue-door", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
-        ["floor", "wall", "floor", "wall", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
-        ["floor", "floor", "floor", "green-door", "floor", "floor", "floor", "ruby", "floor", "floor", "floor"],
-        ["yellow-slime", "wall", "floor", "wall", "floor", "floor", "player", "floor", "floor", "floor", "floor"],
-        ["blue-slime", "green-slime", "red-slime", "yellow-door", "green-key", "floor", "floor", "floor", "floor",
-         "floor", "floor"],
     ],
-    [
-        ["downstairs", "player", "yellow-key", "yellow-key", "floor", "floor", "floor", "floor", "floor", "floor",
-         "floor"],
-        ["floor", "floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "floor"],
-        ["floor", "floor", "green-key", "green-key", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
-        ["lava", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall"],
-        ["floor", "floor", "floor", "blue-key", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
-        ["floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "lucky-coin"],
-        ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
-        ["floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall"],
-        ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
-        ["floor", "floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "floor", "floor"],
-        ["upstairs", "ruby", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "messenger-tips"],
-    ],
-    [
-        ["downstairs", "player", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
-        ["blue-door", "floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "villager-red-key"],
-        ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
-        ["floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "yellow-door"],
-        ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
-        ["green-door", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "floor"],
-        ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
-        ["floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "yellow-door"],
-        ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
-        ["green-door", "floor", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "wall", "floor"],
-        ["topaz", "red-door", "red-door", "red-door", "red-door", "red-door", "red-door", "red-door", "red-door",
-         "red-door", "red-door"],
+
+    "help_page": [  # 在这里自定义帮助文档。
+        "难度部分：\n" +
+        "    作弊模式：生命：9999999、攻击：9999999、防御：9999999、金钱：9999999\n" +
+        "    简单模式：生命：10000、攻击：50、防御：50、金钱：200\n" +
+        "    普通模式：生命：6000、攻击：30、防御：30、金钱：150\n" +
+        "    困难模式：生命：4000、攻击：20、防御：20、金钱：100\n" +
+        "道具部分：\n" +
+        "    红宝石：+5 attack\n" +
+        "    蓝宝石：+5 defence\n" +
+        "    黄宝石：+20 money\n" +
+        "    绿宝石：+200 health\n" +
+        "    红钥匙：打开红色的门\n" +
+        "    蓝钥匙：打开蓝色的门\n" +
+        "    黄钥匙：打开黄色的门\n" +
+        "    绿钥匙：打开绿色的门\n" +
+        "怪物部分：\n" +
+        "    绿色史莱姆：生命：30、攻击：10、防御：10、金钱：8\n" +
+        "    蓝色史莱姆：生命：80、攻击：20、防御：20、金钱：15\n" +
+        "    黄色史莱姆：生命：20、攻击：7、防御：7、金钱：5\n" +
+        "    红色史莱姆：生命：50、攻击：15、防御：15、金钱：10",
+        "道具部分：\n" +
+        "    冰冻魔法：可以走岩浆如履平地。\n"
+        "    幸运金币：获得之后，击杀怪物可以获得双倍金币。\n" +
+        "墙壁部分：\n" +
+        "    红门：需要红钥匙可以打开\n" +
+        "    蓝门：需要蓝钥匙可以打开\n"
+        "    黄门：需要黄钥匙可以打开\n"
+        "    绿门：需要绿钥匙可以打开\n"
+        "    岩浆：需要冰冻魔法方可安全通行\n"
+        "商人部分具体价格按照具体来定。"
     ]
-]
+}
 
-help_page = [  # 在这里自定义帮助文档。
-    "难度部分：\n" +
-    "    作弊模式：生命：9999999、攻击：9999999、防御：9999999、金钱：9999999\n" +
-    "    简单模式：生命：10000、攻击：50、防御：50、金钱：200\n" +
-    "    普通模式：生命：6000、攻击：30、防御：30、金钱：150\n" +
-    "    困难模式：生命：4000、攻击：20、防御：20、金钱：100\n" +
-    "道具部分：\n" +
-    "    红宝石：+5 attack\n" +
-    "    蓝宝石：+5 defence\n" +
-    "    黄宝石：+20 money\n" +
-    "    绿宝石：+200 health\n" +
-    "    红钥匙：打开红色的门\n" +
-    "    蓝钥匙：打开蓝色的门\n" +
-    "    黄钥匙：打开黄色的门\n" +
-    "    绿钥匙：打开绿色的门\n" +
-    "怪物部分：\n" +
-    "    绿色史莱姆：生命：30、攻击：10、防御：10、金钱：8\n" +
-    "    蓝色史莱姆：生命：80、攻击：20、防御：20、金钱：15\n" +
-    "    黄色史莱姆：生命：20、攻击：7、防御：7、金钱：5\n" +
-    "    红色史莱姆：生命：50、攻击：15、防御：15、金钱：10",
-    "道具部分：\n" +
-    "    冰冻魔法：可以走岩浆如履平地。\n"
-    "    幸运金币：获得之后，击杀怪物可以获得双倍金币。\n" +
-    "墙壁部分：\n" +
-    "    红门：需要红钥匙可以打开\n" +
-    "    蓝门：需要蓝钥匙可以打开\n"
-    "    黄门：需要黄钥匙可以打开\n"
-    "    绿门：需要绿钥匙可以打开\n"
-    "    岩浆：需要冰冻魔法方可安全通行\n"
-    "商人部分具体价格按照具体来定。"
-]
+
+def load_json():
+    global config
+    with open(".\\config.json", "r") as f:
+        config = json.loads(f.read())
+
+
+def spawn_json():
+    if not os.path.exists(".\\config.json"):
+        conf = json.dumps(config, sort_keys=True, indent=4)
+        with open(".\\config.json", "w") as f:
+            f.write(conf)

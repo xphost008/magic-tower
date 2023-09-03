@@ -1,3 +1,18 @@
+# pycharm
 __pycache__/
+
+# my test
 background.png
 PyGameTest.py
+
+# pyinstaller
+dist/
+build/
+main.spec
+
+# config
+config.json
+
+# virtual environmant
+clickme.bat
+venv/

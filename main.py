@@ -16,8 +16,10 @@ import level
 pygame.init()
 pygame.mixer.init()
 
-screen = pygame.display.set_mode((1024, 768))  # 设定窗口宽高为1024 x 768
+favicon = pygame.image.load(".\\favicon.ico")  # 程序图标
+pygame.display.set_icon(favicon)  # 设置程序图标
 
+screen = pygame.display.set_mode((1024, 768))  # 设定窗口宽高为1024 x 768
 pygame.display.set_caption("Magic Tower Remake 2 Fantastic Work!!")  # 设定窗口标题为此
 
 player_health = 0  # 玩家生命
@@ -132,6 +134,7 @@ def return_pre_face():
         case 4:
             return x + 64, y, dx + 1, dy
 
+
 def draw_player():
     match face:
         case 1:
@@ -194,9 +197,9 @@ def help_message(text: str):
     """
     global screen
     surface = pygame.Surface((960, 604))
-    surface.fill((192, 192, 192))
+    surface.set_colorkey((0, 0, 0, 255))
     screen.blit(surface, (32, 32))
-    pygame.draw.rect(screen, (0, 190, 190), ((32, 32), (960, 604)), width=10)
+    pygame.draw.rect(screen, (200, 200, 200), ((32, 32), (960, 604)), width=10)
     count = 0
     char_width = [font_help.render(char, True, (0, 0, 0)).get_width() for char in text]
     lines = []
@@ -216,7 +219,8 @@ def help_message(text: str):
             count = 0
     lines.append(current_text)
     for i in range(0, len(lines)):
-        text = font_help.render(lines[i], True, (0, 0, 0))
+        text = font_help.render(lines[i], True, (1, 1, 1))
+        text.set_colorkey((0, 0, 0, 255))
         screen.blit(text, (46, 42 + 28 * i))
 
 
@@ -260,6 +264,8 @@ def message(text: str, is_lock: bool):
         can_turn = False
         running = True
         while running:
+            if is_exit:
+                running = False
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     is_exit = True
@@ -363,24 +369,24 @@ def player_move():
     y = max(32, min(672, y))
     dx = max(1, min(11, dx))
     dy = max(1, min(11, dy))
-    lvl = level.floor[current_level]
+    lvl = level.config["floor"][current_level]
     if lvl[dy - 1][dx - 1] == "wall":
         match_face()
         return
-    for key in level.monster.keys():
+    for key in level.config["monster"].keys():
         if lvl[dy - 1][dx - 1] == key:
-            if player_attack < int(level.monster[key]["defence"]):
+            if player_attack < int(level.config["monster"][key]["defence"]):
                 message("无法击打" + key, False)
                 match_face()
                 return
-            player_health -= reduce_hp(player_attack, player_defence, int(level.monster[key]["attack"]),
-                                       int(level.monster[key]["defence"]), int(level.monster[key]["health"]))
+            player_health -= reduce_hp(player_attack, player_defence, int(level.config["monster"][key]["attack"]),
+                                       int(level.config["monster"][key]["defence"]), int(level.config["monster"][key]["health"]))
             if lucky_coin:
-                player_money += int(level.monster[key]["money"]) * 2
-                message("你战胜了" + key + "，金钱+" + str(level.monster[key]["money"] * 2), False)
+                player_money += int(level.config["monster"][key]["money"]) * 2
+                message("你战胜了" + key + "，金钱+" + str(level.config["monster"][key]["money"] * 2), False)
             else:
-                player_money += int(level.monster[key]["money"])
-                message("你战胜了" + key + "，金钱+" + str(level.monster[key]["money"]), False)
+                player_money += int(level.config["monster"][key]["money"])
+                message("你战胜了" + key + "，金钱+" + str(level.config["monster"][key]["money"]), False)
     # if lvl[dy - 1][dx - 1] == "slime":
     #     if player_attack < 10:
     #         return x, y, dx, dy
@@ -388,40 +394,40 @@ def player_move():
     #     player_money += 5
     #     message("你战胜了史莱姆，金钱 + 5")
     #     can_turn = True
-    for key in level.villager.keys():
+    for key in level.config["villager"].keys():
         if lvl[dy - 1][dx - 1] == key:
             match_face()
-            villager_sell = str(level.villager[key]["sell"])
-            villager_count = int(level.villager[key]["count"])
-            villager_money = int(level.villager[key]["money"])
-            message(level.villager[key]["say"] + "\n按Y确定，按N取消", True)
+            villager_sell = str(level.config["villager"][key]["sell"])
+            villager_count = int(level.config["villager"][key]["count"])
+            villager_money = int(level.config["villager"][key]["money"])
+            message(level.config["villager"][key]["say"] + "\n按Y确定，按N取消", True)
             can_turn = True
             villager_sell = ""
             villager_count = 0
             villager_money = 0
             return
-    for key in level.messenger.keys():
+    for key in level.config["messenger"].keys():
         if lvl[dy - 1][dx - 1] == key:
             lvl[dy - 1][dx - 1] = "floor"
             match_face()
-            for say in level.messenger[key]["say"]:
+            for say in level.config["messenger"][key]["say"]:
                 message(say, True)
             can_turn = True
             tx, ty, tdx, tdy = return_pre_face()
             screen.blit(floor_image, (tx, ty))
             return
     if lvl[dy - 1][dx - 1] == "topaz":
-        player_money += 20
-        message("你吃掉了黄宝石，金钱+" + str(level.topaz), False)
+        player_money += int(level.config["topaz"])
+        message("你吃掉了黄宝石，金钱+" + str(level.config["topaz"]), False)
     if lvl[dy - 1][dx - 1] == "sapphire":
-        player_defence += level.sapphire
-        message("你吃掉了蓝宝石，防御+" + str(level.sapphire), False)
+        player_defence += int(level.config["sapphire"])
+        message("你吃掉了蓝宝石，防御+" + str(level.config["sapphire"]), False)
     if lvl[dy - 1][dx - 1] == "ruby":
-        player_attack += level.ruby
-        message("你吃掉了红宝石，攻击+" + str(level.ruby), False)
+        player_attack += int(level.config["ruby"])
+        message("你吃掉了红宝石，攻击+" + str(level.config["ruby"]), False)
     if lvl[dy - 1][dx - 1] == "emerald":
-        player_health += level.emerald
-        message("你吃掉了绿宝石，生命+" + str(level.emerald), False)
+        player_health += int(level.config["emerald"])
+        message("你吃掉了绿宝石，生命+" + str(level.config["emerald"]), False)
     if lvl[dy - 1][dx - 1] == "yellow-key":
         yellow_key += 1
         message("你得到了黄钥匙", False)
@@ -470,17 +476,17 @@ def player_move():
     if lvl[dy - 1][dx - 1] == "upstairs":
         match_face()
         lvl[dy - 1][dx - 1] = "player"
-        level.floor[current_level] = lvl
+        level.config["floor"][current_level] = lvl
         current_level += 1
-        if current_level >= len(level.floor) - 1:
-            current_level = len(level.floor) - 1
+        if current_level >= len(level.config["floor"]) - 1:
+            current_level = len(level.config["floor"]) - 1
         initFloor()
         message("上到：" + str(current_level + 1) + "层", False)
         return
     if lvl[dy - 1][dx - 1] == "downstairs":
         match_face()
         lvl[dy - 1][dx - 1] = "player"
-        level.floor[current_level] = lvl
+        level.config["floor"][current_level] = lvl
         current_level -= 1
         if current_level <= 0:
             current_level = 0
@@ -525,7 +531,7 @@ def player_move():
     if player_health <= 0:
         is_fail = True
         return
-    level.floor[current_level] = lvl
+    level.config["floor"][current_level] = lvl
 
 
 def draw_button(txt: str, b: tuple[int, int, int, int], lvl: tuple[int, int], c: tuple[int, int, int]):
@@ -537,9 +543,10 @@ def draw_button(txt: str, b: tuple[int, int, int, int], lvl: tuple[int, int], c:
     :return: 无
     """
     surface = pygame.Surface((b[0], b[1]))
-    surface.fill((192, 192, 192))
+    surface.set_colorkey((0, 0, 0, 255))
     screen.blit(surface, (b[2], b[3]))
     text = font_start_button.render(txt, True, (c[0], c[1], c[2]))
+    text.set_colorkey((0, 0, 0, 255))
     screen.blit(text, (lvl[0], lvl[1]))
     pygame.draw.rect(screen, (c[0], c[1], c[2]), ((b[2], b[3]), (b[0], b[1])), width=10)
 
@@ -548,13 +555,15 @@ def game_help():
     global screen
     global is_exit
     global help_page
-    screen.fill((192, 192, 192))
-    help_message(level.help_page[help_page])
+    for ima in range(0, 16):
+        for ge in range(0, 12):
+            screen.blit(floor_image, (ima * 64, ge * 64))
+    help_message(level.config["help_page"][help_page])
     if help_page != 0:
-        draw_button("上一页", (200, 100, 32, 650), (77, 680), (0, 190, 190))
-    draw_button("返回", (200, 100, 412, 650), (472, 680), (0, 190, 190))
-    if help_page != len(level.help_page) - 1:
-        draw_button("下一页", (200, 100, 792, 650), (837, 680), (0, 190, 190))
+        draw_button("上一页", (200, 100, 32, 650), (77, 680), (200, 200, 200))
+    draw_button("返回", (200, 100, 412, 650), (472, 680), (200, 200, 200))
+    if help_page != len(level.config["help_page"]) - 1:
+        draw_button("下一页", (200, 100, 792, 650), (837, 680), (200, 200, 200))
     running = True
     while running:
         if is_exit:
@@ -568,18 +577,18 @@ def game_help():
                 mouse_top = mouse[1]
                 if help_page != 0:
                     if 650 <= mouse_top <= 750 and 32 <= mouse_left <= 232:
-                        draw_button("上一页", (200, 100, 32, 650), (77, 680), (0, 190, 0))
+                        draw_button("上一页", (200, 100, 32, 650), (77, 680), (140, 255, 140))
                     else:
-                        draw_button("上一页", (200, 100, 32, 650), (77, 680), (0, 190, 190))
+                        draw_button("上一页", (200, 100, 32, 650), (77, 680), (200, 200, 200))
                 if 650 <= mouse_top <= 750 and 412 <= mouse_left <= 612:
-                    draw_button("返回", (200, 100, 412, 650), (472, 680), (0, 190, 0))
+                    draw_button("返回", (200, 100, 412, 650), (472, 680), (140, 255, 140))
                 else:
-                    draw_button("返回", (200, 100, 412, 650), (472, 680), (0, 190, 190))
-                if help_page != len(level.help_page) - 1:
+                    draw_button("返回", (200, 100, 412, 650), (472, 680), (200, 200, 200))
+                if help_page != len(level.config["help_page"]) - 1:
                     if 650 <= mouse_top <= 750 and 792 <= mouse_left <= 992:
-                        draw_button("下一页", (200, 100, 792, 650), (837, 680), (0, 190, 0))
+                        draw_button("下一页", (200, 100, 792, 650), (837, 680), (140, 255, 140))
                     else:
-                        draw_button("下一页", (200, 100, 792, 650), (837, 680), (0, 190, 190))
+                        draw_button("下一页", (200, 100, 792, 650), (837, 680), (200, 200, 200))
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse = pygame.mouse.get_pos()
                 mouse_left = mouse[0]
@@ -589,7 +598,7 @@ def game_help():
                         help_page -= 1
                         game_help()
                         running = False
-                if help_page != len(level.help_page) - 1:
+                if help_page != len(level.config["help_page"]) - 1:
                     if 650 <= mouse_top <= 750 and 792 <= mouse_left <= 992:
                         help_page += 1
                         game_help()
@@ -604,11 +613,14 @@ def game_help():
 def game_launch():
     global screen
     global is_exit
-    screen.fill((192, 192, 192))
+    for ima in range(0, 16):
+        for ge in range(0, 12):
+            screen.blit(floor_image, (ima * 64, ge * 64))
     text_start_menu = font_start_menu.render("欢迎来到魔塔世界", True, (190, 10, 60))
+    text_start_menu.set_colorkey((0, 0, 0, 255))
     screen.blit(text_start_menu, (108, 128))
-    draw_button("开始游戏", (200, 100, 400, 300), (430, 330), (0, 190, 190))
-    draw_button("帮助", (200, 100, 400, 430), (460, 460), (0, 190, 190))
+    draw_button("开始游戏", (200, 100, 400, 300), (430, 330), (200, 200, 200))
+    draw_button("帮助", (200, 100, 400, 430), (460, 460), (200, 200, 200))
     running = True
     while running:
         if is_exit:
@@ -621,13 +633,13 @@ def game_launch():
                 mouse_left = mouse[0]
                 mouse_top = mouse[1]
                 if 300 <= mouse_top <= 400 <= mouse_left <= 600:
-                    draw_button("开始游戏", (200, 100, 400, 300), (430, 330), (0, 190, 0))
+                    draw_button("开始游戏", (200, 100, 400, 300), (430, 330), (140, 255, 140))
                 else:
-                    draw_button("开始游戏", (200, 100, 400, 300), (430, 330), (0, 190, 190))
+                    draw_button("开始游戏", (200, 100, 400, 300), (430, 330), (200, 200, 200))
                 if 530 >= mouse_top >= 430 and 600 >= mouse_left >= 400:
-                    draw_button("帮助", (200, 100, 400, 430), (460, 460), (0, 190, 0))
+                    draw_button("帮助", (200, 100, 400, 430), (460, 460), (140, 255, 140))
                 else:
-                    draw_button("帮助", (200, 100, 400, 430), (460, 460), (0, 190, 190))
+                    draw_button("帮助", (200, 100, 400, 430), (460, 460), (200, 200, 200))
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse = pygame.mouse.get_pos()
                 mouse_left = mouse[0]
@@ -647,19 +659,13 @@ def choose_level():
     global player_health, player_attack, player_defence, player_money
     global is_exit
     global screen
-    screen.fill((192, 192, 192))
-    pygame.draw.rect(screen, (0, 190, 190), ((400, 100), (200, 100)), 10)
-    pygame.draw.rect(screen, (0, 190, 190), ((400, 230), (200, 100)), 10)
-    pygame.draw.rect(screen, (0, 190, 190), ((400, 360), (200, 100)), 10)
-    pygame.draw.rect(screen, (0, 190, 190), ((400, 490), (200, 100)), 10)
-    text_cheat_button = font_start_button.render("作弊", True, (0, 190, 190))
-    text_easy_button = font_start_button.render("简单", True, (0, 190, 190))
-    text_normal_button = font_start_button.render("普通", True, (0, 190, 190))
-    text_hard_button = font_start_button.render("困难", True, (0, 190, 190))
-    screen.blit(text_cheat_button, (460, 130))
-    screen.blit(text_easy_button, (460, 260))
-    screen.blit(text_normal_button, (460, 390))
-    screen.blit(text_hard_button, (460, 520))
+    for ima in range(0, 16):
+        for ge in range(0, 12):
+            screen.blit(floor_image, (ima * 64, ge * 64))
+    draw_button("作弊", (200, 100, 400, 100), (460, 130), (200, 200, 200))
+    draw_button("简单", (200, 100, 400, 230), (460, 260), (200, 200, 200))
+    draw_button("普通", (200, 100, 400, 360), (460, 390), (200, 200, 200))
+    draw_button("困难", (200, 100, 400, 490), (460, 520), (200, 200, 200))
     running = True
     while running:
         if is_exit:
@@ -672,21 +678,21 @@ def choose_level():
                 mouse_left = mouse[0]
                 mouse_top = mouse[1]
                 if 400 <= mouse_left <= 600 and 100 <= mouse_top <= 200:
-                    draw_button("作弊", (200, 100, 400, 100), (460, 130), (0, 190, 0))
+                    draw_button("作弊", (200, 100, 400, 100), (460, 130), (140, 255, 140))
                 else:
-                    draw_button("作弊", (200, 100, 400, 100), (460, 130), (0, 190, 190))
+                    draw_button("作弊", (200, 100, 400, 100), (460, 130), (200, 200, 200))
                 if 400 <= mouse_left <= 600 and 230 <= mouse_top <= 330:
-                    draw_button("简单", (200, 100, 400, 230), (460, 260), (0, 190, 0))
+                    draw_button("简单", (200, 100, 400, 230), (460, 260), (140, 255, 140))
                 else:
-                    draw_button("简单", (200, 100, 400, 230), (460, 260), (0, 190, 190))
+                    draw_button("简单", (200, 100, 400, 230), (460, 260), (200, 200, 200))
                 if 400 <= mouse_left <= 600 and 360 <= mouse_top <= 460:
-                    draw_button("普通", (200, 100, 400, 360), (460, 390), (0, 190, 0))
+                    draw_button("普通", (200, 100, 400, 360), (460, 390), (140, 255, 140))
                 else:
-                    draw_button("普通", (200, 100, 400, 360), (460, 390), (0, 190, 190))
+                    draw_button("普通", (200, 100, 400, 360), (460, 390), (200, 200, 200))
                 if 400 <= mouse_left <= 600 and 490 <= mouse_top <= 590:
-                    draw_button("困难", (200, 100, 400, 490), (460, 520), (0, 190, 0))
+                    draw_button("困难", (200, 100, 400, 490), (460, 520), (140, 255, 140))
                 else:
-                    draw_button("困难", (200, 100, 400, 490), (460, 520), (0, 190, 190))
+                    draw_button("困难", (200, 100, 400, 490), (460, 520), (200, 200, 200))
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse = pygame.mouse.get_pos()
                 mouse_left = mouse[0]
@@ -700,26 +706,26 @@ def choose_level():
                     start()
                     running = False
                 if 400 <= mouse_left <= 600 and 230 <= mouse_top <= 330:
-                    player_health = 10000
-                    player_attack = 50
-                    player_defence = 50
-                    player_money = 200
+                    player_health = int(level.config["difficulty"]["easy"]["health"])
+                    player_attack = int(level.config["difficulty"]["easy"]["attack"])
+                    player_defence = int(level.config["difficulty"]["easy"]["defence"])
+                    player_money = int(level.config["difficulty"]["easy"]["money"])
                     initFloor()
                     start()
                     running = False
                 if 400 <= mouse_left <= 600 and 360 <= mouse_top <= 460:
-                    player_health = 6000
-                    player_attack = 30
-                    player_defence = 30
-                    player_money = 150
+                    player_health = int(level.config["difficulty"]["normal"]["health"])
+                    player_attack = int(level.config["difficulty"]["normal"]["attack"])
+                    player_defence = int(level.config["difficulty"]["normal"]["defence"])
+                    player_money = int(level.config["difficulty"]["normal"]["money"])
                     initFloor()
                     start()
                     running = False
                 if 400 <= mouse_left <= 600 and 490 <= mouse_top <= 590:
-                    player_health = 4000
-                    player_attack = 20
-                    player_defence = 15
-                    player_money = 100
+                    player_health = int(level.config["difficulty"]["hard"]["health"])
+                    player_attack = int(level.config["difficulty"]["hard"]["attack"])
+                    player_defence = int(level.config["difficulty"]["hard"]["defence"])
+                    player_money = int(level.config["difficulty"]["hard"]["money"])
                     initFloor()
                     start()
                     running = False
@@ -745,59 +751,59 @@ def blit_initial():
     y = 11
     dx = 352
     dy = 672
-    for i in range(0, len(level.floor[current_level])):
-        for j in range(0, len(level.floor[current_level][i])):
-            if level.floor[current_level][i][j] == "lucky-coin":
+    for i in range(0, len(level.config["floor"][current_level])):
+        for j in range(0, len(level.config["floor"][current_level][i])):
+            if level.config["floor"][current_level][i][j] == "lucky-coin":
                 screen.blit(lucky_coin_image, (32 + j * 64, 32 + i * 64))
-            elif level.floor[current_level][i][j] == "ice-magic":
+            elif level.config["floor"][current_level][i][j] == "ice-magic":
                 screen.blit(ice_magic_image, (32 + j * 64, 32 + i * 64))
-            elif "wall" in level.floor[current_level][i][j]:
+            elif "wall" in level.config["floor"][current_level][i][j]:
                 screen.blit(wall_image, (32 + j * 64, 32 + i * 64))
-            elif "floor" in level.floor[current_level][i][j]:
+            elif "floor" in level.config["floor"][current_level][i][j]:
                 pass
-            elif level.floor[current_level][i][j] == "lava":
+            elif level.config["floor"][current_level][i][j] == "lava":
                 screen.blit(lava_image, (32 + j * 64, 32 + i * 64))
-            elif level.floor[current_level][i][j] == "upstairs":
+            elif level.config["floor"][current_level][i][j] == "upstairs":
                 screen.blit(upstairs, (32 + j * 64, 32 + i * 64))
-            elif level.floor[current_level][i][j] == "downstairs":
+            elif level.config["floor"][current_level][i][j] == "downstairs":
                 screen.blit(downstairs, (32 + j * 64, 32 + i * 64))
-            elif level.floor[current_level][i][j] == "emerald":
+            elif level.config["floor"][current_level][i][j] == "emerald":
                 screen.blit(emerald_image, (32 + j * 64, 32 + i * 64))
-            elif level.floor[current_level][i][j] == "ruby":
+            elif level.config["floor"][current_level][i][j] == "ruby":
                 screen.blit(ruby_image, (32 + j * 64, 32 + i * 64))
-            elif level.floor[current_level][i][j] == "sapphire":
+            elif level.config["floor"][current_level][i][j] == "sapphire":
                 screen.blit(sapphire_image, (32 + j * 64, 32 + i * 64))
-            elif level.floor[current_level][i][j] == "topaz":
+            elif level.config["floor"][current_level][i][j] == "topaz":
                 screen.blit(topaz_image, (32 + j * 64, 32 + i * 64))
-            elif level.floor[current_level][i][j] == "green-slime":
+            elif level.config["floor"][current_level][i][j] == "green-slime":
                 screen.blit(green_slime_image, (32 + j * 64, 32 + i * 64))
-            elif level.floor[current_level][i][j] == "red-slime":
+            elif level.config["floor"][current_level][i][j] == "red-slime":
                 screen.blit(red_slime_image, (32 + j * 64, 32 + i * 64))
-            elif level.floor[current_level][i][j] == "blue-slime":
+            elif level.config["floor"][current_level][i][j] == "blue-slime":
                 screen.blit(blue_slime_image, (32 + j * 64, 32 + i * 64))
-            elif level.floor[current_level][i][j] == "yellow-slime":
+            elif level.config["floor"][current_level][i][j] == "yellow-slime":
                 screen.blit(yellow_slime_image, (32 + j * 64, 32 + i * 64))
-            elif level.floor[current_level][i][j] == "red-key":
+            elif level.config["floor"][current_level][i][j] == "red-key":
                 screen.blit(red_key_image, (32 + j * 64, 32 + i * 64))
-            elif level.floor[current_level][i][j] == "blue-key":
+            elif level.config["floor"][current_level][i][j] == "blue-key":
                 screen.blit(blue_key_image, (32 + j * 64, 32 + i * 64))
-            elif level.floor[current_level][i][j] == "green-key":
+            elif level.config["floor"][current_level][i][j] == "green-key":
                 screen.blit(green_key_image, (32 + j * 64, 32 + i * 64))
-            elif level.floor[current_level][i][j] == "yellow-key":
+            elif level.config["floor"][current_level][i][j] == "yellow-key":
                 screen.blit(yellow_key_image, (32 + j * 64, 32 + i * 64))
-            elif level.floor[current_level][i][j] == "red-door":
+            elif level.config["floor"][current_level][i][j] == "red-door":
                 screen.blit(red_door_image, (32 + j * 64, 32 + i * 64))
-            elif level.floor[current_level][i][j] == "blue-door":
+            elif level.config["floor"][current_level][i][j] == "blue-door":
                 screen.blit(blue_door_image, (32 + j * 64, 32 + i * 64))
-            elif level.floor[current_level][i][j] == "green-door":
+            elif level.config["floor"][current_level][i][j] == "green-door":
                 screen.blit(green_door_image, (32 + j * 64, 32 + i * 64))
-            elif level.floor[current_level][i][j] == "yellow-door":
+            elif level.config["floor"][current_level][i][j] == "yellow-door":
                 screen.blit(yellow_door_image, (32 + j * 64, 32 + i * 64))
-            elif "villager" in level.floor[current_level][i][j]:
+            elif "villager" in level.config["floor"][current_level][i][j]:
                 screen.blit(villager_image, (32 + j * 64, 32 + i * 64))
-            elif "messenger" in level.floor[current_level][i][j]:
+            elif "messenger" in level.config["floor"][current_level][i][j]:
                 screen.blit(messenger_image, (32 + j * 64, 32 + i * 64))
-            elif level.floor[current_level][i][j] == "player":
+            elif level.config["floor"][current_level][i][j] == "player":
                 screen.blit(player_face_image, (32 + j * 64, 32 + i * 64))
                 dx = j + 1
                 dy = i + 1
@@ -848,29 +854,29 @@ def start():
                 if event.key == pygame.K_UP:
                     if can_turn:
                         face = 2
-                        level.floor[current_level][dy - 1][dx - 1] = "floor"
+                        level.config["floor"][current_level][dy - 1][dx - 1] = "floor"
                         y -= 64
                         dy -= 1
                 if event.key == pygame.K_DOWN:
                     if can_turn:
                         face = 1
-                        level.floor[current_level][dy - 1][dx - 1] = "floor"
+                        level.config["floor"][current_level][dy - 1][dx - 1] = "floor"
                         y += 64
                         dy += 1
                 if event.key == pygame.K_LEFT:
                     if can_turn:
                         face = 3
-                        level.floor[current_level][dy - 1][dx - 1] = "floor"
+                        level.config["floor"][current_level][dy - 1][dx - 1] = "floor"
                         x -= 64
                         dx -= 1
                 if event.key == pygame.K_RIGHT:
                     if can_turn:
                         face = 4
-                        level.floor[current_level][dy - 1][dx - 1] = "floor"
+                        level.config["floor"][current_level][dy - 1][dx - 1] = "floor"
                         x += 64
                         dx += 1
                 if event.key == pygame.K_RETURN:
-                    print(level.floor)
+                    print(level.config["floor"])
             if event.type == pygame.MOUSEBUTTONDOWN:  # 使用道具
                 pass
         player_move()
@@ -884,4 +890,6 @@ def start():
 
 
 if __name__ == '__main__':
+    level.spawn_json()
+    level.load_json()
     game_launch()
