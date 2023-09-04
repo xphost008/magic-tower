@@ -9,6 +9,7 @@ PyGameTest.py
 dist/
 build/
 main.spec
+Magic-tower-venv.zip
 
 # config
 config.json
