@@ -57,6 +57,11 @@ red_key_image = pygame.image.load(".\\image\\red_key.png")  # 红钥匙
 
 ice_magic_image = pygame.image.load(".\\image\\ice_magic.png")  # 冰冻魔法
 lucky_coin_image = pygame.image.load(".\\image\\lucky_coin.png")  # 幸运金币
+holy_water_image = pygame.image.load(".\\image\\holy_water.png")  # 圣水
+pickaxe_image = pygame.image.load(".\\image\\pickaxe.png")  # 镐子
+tnt_image = pygame.image.load(".\\image\\tnt.png")  # 炸弹
+magic_key_image = pygame.image.load(".\\image\\magic_key.png")  # 魔法钥匙
+quake_scroll_image = pygame.image.load(".\\image\\quake_scroll.png")  # 地震卷轴
 
 green_slime_image = pygame.image.load(".\\image\\green_slime.png")  # 绿色史莱姆
 blue_slime_image = pygame.image.load(".\\image\\blue_slime.png")  # 蓝色史莱姆
@@ -79,12 +84,22 @@ villager_image = pygame.image.load(".\\image\\villager.png")  # 商人
 messenger_image = pygame.image.load(".\\image\\messenger.png")  # 传话人
 error_image = pygame.image.load(".\\image\\error.png")  # 错误贴图
 
+ding_music = pygame.mixer.Sound(".\\music\\ogg\\ding.ogg")
+kill_music = pygame.mixer.Sound(".\\music\\ogg\\kill.ogg")
+open_music = pygame.mixer.Sound(".\\music\\ogg\\open.ogg")
+pick_music = pygame.mixer.Sound(".\\music\\ogg\\pick.ogg")
+
 can_turn = True  # 玩家此时是否可以行走
 is_exit = False  # 是否直接退出游戏
 is_fail = False  # 是否失败
 
 ice_magic = False  # 是否拥有冰冻魔法
-lucky_coin = False
+lucky_coin = False  # 是否拥有幸运金币
+pickaxe = False  # 是否拥有稿子
+holy_water = False  # 是否拥有圣水
+magic_key = False  # 是否拥有稿子
+tnt = False  # 是否拥有圣水
+quake_scroll = False  # 是否拥有稿子
 
 current_level = 0  # 当前楼层
 face = 1  # 玩家朝向【1：前、2：后、3：左、4：右】
@@ -164,17 +179,16 @@ def reduce_hp(own_attack: int, own_defence: int, enemy_attack: int, enemy_defenc
     return red
 
 
-def update_level(lvl: int):
+def update_level():
     """
-    :param lvl: 层数
-    :return:
+    更新楼层
     """
     global screen
     global font_level
     surface = pygame.Surface((256, 52))
     surface.fill((192, 192, 192))
     screen.blit(surface, (768, 0))
-    text = font_level.render("第" + str(lvl + 1) + "层", True, (0, 0, 0))
+    text = font_level.render("第" + str(current_level + 1) + "层", True, (0, 0, 0))
     screen.blit(text, (768, 0))
 
 
@@ -183,11 +197,37 @@ def update_prop():
     surface = pygame.Surface((256, 256))
     surface.fill((192, 192, 192))
     screen.blit(surface, (768, 256))
-    pygame.draw.rect(screen, (0, 0, 0), ((768, 256), (256, 256)), width=1)
+    no_prop = pygame.Surface((64, 64))
+    no_prop.fill((192, 192, 192))
     if ice_magic:
         screen.blit(ice_magic_image, (768, 256))
+    else:
+        screen.blit(no_prop, (768, 256))
     if lucky_coin:
         screen.blit(lucky_coin_image, (832, 256))
+    else:
+        screen.blit(no_prop, (832, 256))
+    if holy_water:
+        screen.blit(holy_water_image, (896, 256))
+    else:
+        screen.blit(no_prop, (896, 256))
+    if pickaxe:
+        screen.blit(pickaxe_image, (960, 256))
+    else:
+        screen.blit(no_prop, (960, 256))
+    if magic_key:
+        screen.blit(magic_key_image, (768, 320))
+    else:
+        screen.blit(no_prop, (768, 320))
+    if tnt:
+        screen.blit(tnt_image, (832, 320))
+    else:
+        screen.blit(no_prop, (832, 320))
+    if quake_scroll:
+        screen.blit(quake_scroll_image, (896, 320))
+    else:
+        screen.blit(no_prop, (896, 320))
+    pygame.draw.rect(screen, (0, 0, 0), ((768, 256), (256, 256)), width=3)
 
 
 def help_message(text: str):
@@ -347,7 +387,7 @@ def update_key():
 
 
 def update():
-    update_level(current_level)
+    update_level()
     update_prop()
     update_attribute()
     update_key()
@@ -361,7 +401,7 @@ def player_move():
     global red_key, blue_key, green_key, yellow_key
     global is_fail, can_turn, current_level
     global x, y, dx, dy
-    global ice_magic, lucky_coin
+    global ice_magic, lucky_coin, holy_water, pickaxe, quake_scroll, magic_key, tnt
     global villager_sell, villager_money, villager_count
     if is_fail:
         return
@@ -387,6 +427,7 @@ def player_move():
             else:
                 player_money += int(level.config["monster"][key]["money"])
                 message("你战胜了" + key + "，金钱+" + str(level.config["monster"][key]["money"]), False)
+            kill_music.play()
     # if lvl[dy - 1][dx - 1] == "slime":
     #     if player_attack < 10:
     #         return x, y, dx, dy
@@ -419,28 +460,35 @@ def player_move():
     if lvl[dy - 1][dx - 1] == "topaz":
         player_money += int(level.config["topaz"])
         message("你吃掉了黄宝石，金钱+" + str(level.config["topaz"]), False)
+        pick_music.play()
     if lvl[dy - 1][dx - 1] == "sapphire":
         player_defence += int(level.config["sapphire"])
         message("你吃掉了蓝宝石，防御+" + str(level.config["sapphire"]), False)
+        pick_music.play()
     if lvl[dy - 1][dx - 1] == "ruby":
         player_attack += int(level.config["ruby"])
         message("你吃掉了红宝石，攻击+" + str(level.config["ruby"]), False)
+        pick_music.play()
     if lvl[dy - 1][dx - 1] == "emerald":
         player_health += int(level.config["emerald"])
         message("你吃掉了绿宝石，生命+" + str(level.config["emerald"]), False)
+        pick_music.play()
     if lvl[dy - 1][dx - 1] == "yellow-key":
         yellow_key += 1
         message("你得到了黄钥匙", False)
+        pick_music.play()
     if lvl[dy - 1][dx - 1] == "blue-key":
         blue_key += 1
         message("你得到了蓝钥匙", False)
+        pick_music.play()
     if lvl[dy - 1][dx - 1] == "green-key":
         green_key += 1
         message("你得到了绿钥匙", False)
+        pick_music.play()
     if lvl[dy - 1][dx - 1] == "red-key":
         red_key += 1
         message("你得到了红钥匙", False)
-
+        pick_music.play()
     if lvl[dy - 1][dx - 1] == "yellow-door":
         if yellow_key < 1:
             message("黄钥匙不够", False)
@@ -449,6 +497,7 @@ def player_move():
         else:
             message("你打开了黄门", False)
             yellow_key -= 1
+            open_music.play()
     if lvl[dy - 1][dx - 1] == "blue-door":
         if blue_key < 1:
             message("蓝钥匙不够", False)
@@ -457,6 +506,7 @@ def player_move():
         else:
             message("你打开了蓝门", False)
             blue_key -= 1
+            open_music.play()
     if lvl[dy - 1][dx - 1] == "red-door":
         if red_key < 1:
             message("红钥匙不够", False)
@@ -465,6 +515,7 @@ def player_move():
         else:
             message("你打开了红门", False)
             red_key -= 1
+            open_music.play()
     if lvl[dy - 1][dx - 1] == "green-door":
         if green_key < 1:
             message("绿钥匙不够", False)
@@ -473,6 +524,7 @@ def player_move():
         else:
             message("你打开了绿门", False)
             green_key -= 1
+            open_music.play()
     if lvl[dy - 1][dx - 1] == "upstairs":
         match_face()
         lvl[dy - 1][dx - 1] = "player"
@@ -496,9 +548,31 @@ def player_move():
     if lvl[dy - 1][dx - 1] == "ice-magic":
         message("获得”冰冻魔法“", False)
         ice_magic = True
+        pick_music.play()
     if lvl[dy - 1][dx - 1] == "lucky-coin":
         message("获得”幸运金币“，金钱 * 2", False)
         lucky_coin = True
+        pick_music.play()
+    if lvl[dy - 1][dx - 1] == "holy-water":
+        message("获得”圣水“，不同楼层使用会有恢复不同血量。", False)
+        holy_water = True
+        pick_music.play()
+    if lvl[dy - 1][dx - 1] == "pickaxe":
+        message("获得”镐子“，可以挖开自己身边的墙壁，假地板需触发。", False)
+        pickaxe = True
+        pick_music.play()
+    if lvl[dy - 1][dx - 1] == "quake-scroll":
+        message("获得”地震卷轴“，可以炸掉这一整层的墙壁，包括假地板。", False)
+        quake_scroll = True
+        pick_music.play()
+    if lvl[dy - 1][dx - 1] == "tnt":
+        message("获得”炸弹“，可以炸死自己周围的怪物。", False)
+        tnt = True
+        pick_music.play()
+    if lvl[dy - 1][dx - 1] == "magic-key":
+        message("获得”魔法钥匙“，可以打开这一层楼的所有门，无视黄门还是红门。", False)
+        magic_key = True
+        pick_music.play()
     if lvl[dy - 1][dx - 1] == "lava":
         if not ice_magic:
             message("你不能穿过这里。", False)
@@ -757,6 +831,16 @@ def blit_initial():
                 screen.blit(lucky_coin_image, (32 + j * 64, 32 + i * 64))
             elif level.config["floor"][current_level][i][j] == "ice-magic":
                 screen.blit(ice_magic_image, (32 + j * 64, 32 + i * 64))
+            elif level.config["floor"][current_level][i][j] == "pickaxe":
+                screen.blit(pickaxe_image, (32 + j * 64, 32 + i * 64))
+            elif level.config["floor"][current_level][i][j] == "holy-water":
+                screen.blit(holy_water_image, (32 + j * 64, 32 + i * 64))
+            elif level.config["floor"][current_level][i][j] == "tnt":
+                screen.blit(tnt_image, (32 + j * 64, 32 + i * 64))
+            elif level.config["floor"][current_level][i][j] == "quake-scroll":
+                screen.blit(quake_scroll_image, (32 + j * 64, 32 + i * 64))
+            elif level.config["floor"][current_level][i][j] == "magic-key":
+                screen.blit(magic_key_image, (32 + j * 64, 32 + i * 64))
             elif "wall" in level.config["floor"][current_level][i][j]:
                 screen.blit(wall_image, (32 + j * 64, 32 + i * 64))
             elif "floor" in level.config["floor"][current_level][i][j]:
@@ -842,6 +926,8 @@ def start():
     global can_turn, is_exit, is_fail
     global current_level
     global x, y, dx, dy, face
+    global player_health
+    global pickaxe, holy_water, quake_scroll, tnt, magic_key
     running = True
     while running:
         if is_exit:
@@ -875,10 +961,81 @@ def start():
                         level.config["floor"][current_level][dy - 1][dx - 1] = "floor"
                         x += 64
                         dx += 1
-                if event.key == pygame.K_RETURN:
+                if event.key == pygame.K_RETURN:  # 回车测试按钮
                     print(level.config["floor"])
+                    print(str(x) + " " + str(y))
+                if event.key == pygame.K_v:  # 查看怪物手册
+                    pass
             if event.type == pygame.MOUSEBUTTONDOWN:  # 使用道具
-                pass
+                mouse = pygame.mouse.get_pos()
+                mouse_left = mouse[0]
+                mouse_top = mouse[1]
+                if 896 < mouse_left < 960 and 256 < mouse_top < 320:
+                    if holy_water:
+                        h = (current_level + 1) * 1000
+                        message("你使用了圣水，你恢复了" + str(h) + "的生命值。", False)
+                        player_health += h
+                        holy_water = False
+                        update()
+                if 960 < mouse_left < 1024 and 256 < mouse_top < 320:
+                    if pickaxe:
+                        if not dy >= 11 and level.config["floor"][current_level][dy][dx - 1] == "wall":
+                            level.config["floor"][current_level][dy][dx - 1] = "floor"
+                            screen.blit(floor_image, (x, y + 64))
+                        if not dy <= 1 and level.config["floor"][current_level][dy - 2][dx - 1] == "wall":
+                            level.config["floor"][current_level][dy - 2][dx - 1] = "floor"
+                            screen.blit(floor_image, (x, y - 64))
+                        if not dx >= 11 and level.config["floor"][current_level][dy - 1][dx] == "wall":
+                            level.config["floor"][current_level][dy - 1][dx] = "floor"
+                            screen.blit(floor_image, (x + 64, y))
+                        if not dx <= 1 and level.config["floor"][current_level][dy - 1][dx - 2] == "wall":
+                            level.config["floor"][current_level][dy - 1][dx - 2] = "floor"
+                            screen.blit(floor_image, (x - 64, y))
+                        message("你使用了镐子，破除了周围的墙壁。", False)
+                        pickaxe = False
+                        update()
+                if 768 < mouse_left < 832 and 320 < mouse_top < 384:
+                    if magic_key:
+                        for i in range(0, len(level.config["floor"][current_level])):
+                            for j in range(0, len(level.config["floor"][current_level][i])):
+                                if "door" in level.config["floor"][current_level][i][j]:
+                                    level.config["floor"][current_level][i][j] = "floor"
+                                    screen.blit(floor_image, (32 + j * 64, 32 + i * 64))
+                        message("你使用了魔法钥匙，现在这一层楼全部的门都已打开。", False)
+                        magic_key = False
+                        update()
+                if 832 < mouse_left < 896 and 320 < mouse_top < 384:
+                    if tnt:
+                        if (not dy >= 11 and level.config["floor"][current_level][dy][dx - 1] in
+                                level.config["monster"].keys()):
+                            level.config["floor"][current_level][dy][dx - 1] = "floor"
+                            screen.blit(floor_image, (x, y + 64))
+                        if (not dy <= 1 and level.config["floor"][current_level][dy - 2][dx - 1] in
+                                level.config["monster"].keys()):
+                            level.config["floor"][current_level][dy - 2][dx - 1] = "floor"
+                            screen.blit(floor_image, (x, y - 64))
+                        if (not dx >= 11 and level.config["floor"][current_level][dy - 1][dx] in
+                                level.config["monster"].keys()):
+                            level.config["floor"][current_level][dy - 1][dx] = "floor"
+                            screen.blit(floor_image, (x + 64, y))
+                        if (not dx <= 1 and level.config["floor"][current_level][dy - 1][dx - 2] in
+                                level.config["monster"].keys()):
+                            level.config["floor"][current_level][dy - 1][dx - 2] = "floor"
+                            screen.blit(floor_image, (x - 64, y))
+                        message("你使用了炸弹，你周围的怪物被杀死了。", False)
+                        tnt = False
+                        update()
+                if 896 < mouse_left < 960 and 320 < mouse_top < 384:
+                    if quake_scroll:
+                        for i in range(0, len(level.config["floor"][current_level])):
+                            for j in range(0, len(level.config["floor"][current_level][i])):
+                                if ("wall" in level.config["floor"][current_level][i][j] or
+                                        "floor" in level.config["floor"][current_level][i][j]):
+                                    level.config["floor"][current_level][i][j] = "floor"
+                                    screen.blit(floor_image, (32 + j * 64, 32 + i * 64))
+                        message("你使用了地震卷轴，现在这一层楼全部的墙都已被破坏。", False)
+                        quake_scroll = False
+                        update()
         player_move()
         draw_player()
         if is_fail:
