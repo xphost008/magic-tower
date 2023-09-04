@@ -49,25 +49,29 @@ config = {
             "health": 20,
             "attack": 7,
             "defence": 7,
-            "money": 5
+            "money": 5,
+            "texture": ".\\image\\yellow_slime.png"
         },
         "green-slime": {
             "health": 30,
             "attack": 10,
             "defence": 10,
             "money": 8,
+            "texture": ".\\image\\green_slime.png"
         },
         "red-slime": {
             "health": 50,
             "attack": 15,
             "defence": 15,
             "money": 10,
+            "texture": ".\\image\\red_slime.png"
         },
         "blue-slime": {
             "health": 80,
             "attack": 20,
             "defence": 20,
-            "money": 15
+            "money": 15,
+            "texture": ".\\image\\blue_slime.png"
         }
     },
 
@@ -90,6 +94,20 @@ config = {
             ["floor", "floor", "floor", "floor", "floor", "floor", "player", "floor", "floor", "floor", "lava"],
             ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "lava", "downstairs"],
         ],
+        [
+            ["downstairs", "player", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "green-slime", "blue-slime", "red-slime",
+             "yellow-slime"],
+        ]
     ],
 
     "help_page": [  # 在这里自定义帮助文档。
@@ -115,7 +133,7 @@ config = {
         "道具部分：\n" +
         "    冰冻魔法：可以走岩浆如履平地。\n"
         "    幸运金币：获得之后，击杀怪物可以获得双倍金币。\n" +
-        "    镐子：获取后可以挖掉自己周围的墙壁。但是假地板需要触发后才能挖。点击使用。\n" +
+        "    镐子：获取后可以挖掉自己周围的墙壁。但是假地板需要触发才能挖。点击使用。\n" +
         "    圣水：获取后每一楼层回复的生命值不同。例如1楼恢复1000，50楼恢复50000。点击使用。\n" +
         "    炸弹：获取后可以炸掉自己周围打不过的怪物，但无法获得金钱，点击使用。\n" +
         "    魔法钥匙：获取后可以打开这一层楼中所有的门，无视红门还是黄门啥的。\n" +
@@ -133,12 +151,12 @@ config = {
 
 def load_json():
     global config
-    with open(".\\config.json", "r") as f:
+    with open(".\\config.json", "r", encoding="GBK") as f:
         config = json.loads(f.read())
 
 
 def spawn_json():
     if not os.path.exists(".\\config.json"):
-        conf = json.dumps(config, sort_keys=True, indent=4)
+        conf = json.dumps(config, indent=4, ensure_ascii=False)
         with open(".\\config.json", "w") as f:
             f.write(conf)

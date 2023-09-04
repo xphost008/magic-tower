@@ -7,6 +7,7 @@
 # @Email   : 273020451@qq.com
 # @File    : main.py
 # @Software: MagicTower
+import sys
 
 import pygame
 from pygame.locals import *
@@ -26,11 +27,6 @@ player_health = 0  # 玩家生命
 player_attack = 0  # 玩家攻击
 player_defence = 0  # 玩家防御
 player_money = 0  # 玩家金钱
-
-yellow_key = 0  # 黄钥匙个数
-blue_key = 0  # 蓝钥匙个数
-red_key = 0  # 红钥匙个数
-green_key = 0  # 绿钥匙个数
 
 failed_image = pygame.image.load(".\\image\\boom.png")  # 死亡动画
 
@@ -63,10 +59,10 @@ tnt_image = pygame.image.load(".\\image\\tnt.png")  # 炸弹
 magic_key_image = pygame.image.load(".\\image\\magic_key.png")  # 魔法钥匙
 quake_scroll_image = pygame.image.load(".\\image\\quake_scroll.png")  # 地震卷轴
 
-green_slime_image = pygame.image.load(".\\image\\green_slime.png")  # 绿色史莱姆
-blue_slime_image = pygame.image.load(".\\image\\blue_slime.png")  # 蓝色史莱姆
-red_slime_image = pygame.image.load(".\\image\\red_slime.png")  # 红色史莱姆
-yellow_slime_image = pygame.image.load(".\\image\\yellow_slime.png")  # 黄色史莱姆
+# green_slime_image = pygame.image.load(".\\image\\green_slime.png")  # 绿色史莱姆
+# blue_slime_image = pygame.image.load(".\\image\\blue_slime.png")  # 蓝色史莱姆
+# red_slime_image = pygame.image.load(".\\image\\red_slime.png")  # 红色史莱姆
+# yellow_slime_image = pygame.image.load(".\\image\\yellow_slime.png")  # 黄色史莱姆
 
 green_door_image = pygame.image.load(".\\image\\green_door.png")  # 绿门
 blue_door_image = pygame.image.load(".\\image\\blue_door.png")  # 蓝门
@@ -88,9 +84,16 @@ ding_music = pygame.mixer.Sound(".\\music\\ogg\\ding.ogg")
 kill_music = pygame.mixer.Sound(".\\music\\ogg\\kill.ogg")
 open_music = pygame.mixer.Sound(".\\music\\ogg\\open.ogg")
 pick_music = pygame.mixer.Sound(".\\music\\ogg\\pick.ogg")
+extinguish_music = pygame.mixer.Sound(".\\music\\ogg\\fizz.ogg")
+yes_music = pygame.mixer.Sound(".\\music\\ogg\\yes.ogg")
+no_music = pygame.mixer.Sound(".\\music\\ogg\\no.ogg")
+
+yellow_key = 0  # 黄钥匙个数
+blue_key = 0  # 蓝钥匙个数
+red_key = 0  # 红钥匙个数
+green_key = 0  # 绿钥匙个数
 
 can_turn = True  # 玩家此时是否可以行走
-is_exit = False  # 是否直接退出游戏
 is_fail = False  # 是否失败
 
 ice_magic = False  # 是否拥有冰冻魔法
@@ -272,7 +275,6 @@ def message(text: str, is_lock: bool):
     """
     global can_turn
     global screen
-    global is_exit
     global player_money, player_attack, player_health, player_defence
     global red_key, yellow_key, blue_key, green_key
     surface = pygame.Surface((256, 256))
@@ -302,20 +304,17 @@ def message(text: str, is_lock: bool):
         screen.blit(text, (778, 522 + 16 * i))
     if is_lock:
         can_turn = False
-        running = True
-        while running:
-            if is_exit:
-                running = False
+        while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    is_exit = True
-                    running = False
+                    pygame.quit()
+                    sys.exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         if villager_sell == "":
                             screen.blit(surface, (768, 512))
                             pygame.draw.rect(screen, (0, 0, 0), ((768, 512), (256, 256)), width=10)
-                            running = False
+                            return
                     if event.key == pygame.K_y:
                         if villager_sell != "":
                             if player_money >= villager_money:
@@ -335,16 +334,18 @@ def message(text: str, is_lock: bool):
                                 elif villager_sell == "green-key":
                                     green_key += villager_count
                                 message("交易愉快！", False)
+                                yes_music.play()
                                 update()
-                                running = False
                             else:
                                 message("金钱不够……", False)
-                                running = False
+                                no_music.play()
+                            return
                     if event.key == pygame.K_n:
                         if villager_sell != "":
                             message("你取消了交易。", False)
+                            no_music.play()
                             update()
-                            running = False
+                            return
             draw_player()
             pygame.display.flip()
             pygame.display.update()
@@ -457,138 +458,140 @@ def player_move():
             tx, ty, tdx, tdy = return_pre_face()
             screen.blit(floor_image, (tx, ty))
             return
-    if lvl[dy - 1][dx - 1] == "topaz":
-        player_money += int(level.config["topaz"])
-        message("你吃掉了黄宝石，金钱+" + str(level.config["topaz"]), False)
-        pick_music.play()
-    if lvl[dy - 1][dx - 1] == "sapphire":
-        player_defence += int(level.config["sapphire"])
-        message("你吃掉了蓝宝石，防御+" + str(level.config["sapphire"]), False)
-        pick_music.play()
-    if lvl[dy - 1][dx - 1] == "ruby":
-        player_attack += int(level.config["ruby"])
-        message("你吃掉了红宝石，攻击+" + str(level.config["ruby"]), False)
-        pick_music.play()
-    if lvl[dy - 1][dx - 1] == "emerald":
-        player_health += int(level.config["emerald"])
-        message("你吃掉了绿宝石，生命+" + str(level.config["emerald"]), False)
-        pick_music.play()
-    if lvl[dy - 1][dx - 1] == "yellow-key":
-        yellow_key += 1
-        message("你得到了黄钥匙", False)
-        pick_music.play()
-    if lvl[dy - 1][dx - 1] == "blue-key":
-        blue_key += 1
-        message("你得到了蓝钥匙", False)
-        pick_music.play()
-    if lvl[dy - 1][dx - 1] == "green-key":
-        green_key += 1
-        message("你得到了绿钥匙", False)
-        pick_music.play()
-    if lvl[dy - 1][dx - 1] == "red-key":
-        red_key += 1
-        message("你得到了红钥匙", False)
-        pick_music.play()
-    if lvl[dy - 1][dx - 1] == "yellow-door":
-        if yellow_key < 1:
-            message("黄钥匙不够", False)
+    match lvl[dy - 1][dx - 1]:
+        case "topaz":
+            player_money += int(level.config["topaz"])
+            message("你吃掉了黄宝石，金钱+" + str(level.config["topaz"]), False)
+            pick_music.play()
+        case "sapphire":
+            player_defence += int(level.config["sapphire"])
+            message("你吃掉了蓝宝石，防御+" + str(level.config["sapphire"]), False)
+            pick_music.play()
+        case "ruby":
+            player_attack += int(level.config["ruby"])
+            message("你吃掉了红宝石，攻击+" + str(level.config["ruby"]), False)
+            pick_music.play()
+        case "emerald":
+            player_health += int(level.config["emerald"])
+            message("你吃掉了绿宝石，生命+" + str(level.config["emerald"]), False)
+            pick_music.play()
+        case "yellow-key":
+            yellow_key += 1
+            message("你得到了黄钥匙", False)
+            pick_music.play()
+        case "green-key":
+            green_key += 1
+            message("你得到了绿钥匙", False)
+            pick_music.play()
+        case "blue-key":
+            blue_key += 1
+            message("你得到了蓝钥匙", False)
+            pick_music.play()
+        case "red-key":
+            red_key += 1
+            message("你得到了红钥匙", False)
+            pick_music.play()
+        case "yellow-door":
+            if yellow_key < 1:
+                message("黄钥匙不够", False)
+                match_face()
+                return
+            else:
+                message("你打开了黄门", False)
+                yellow_key -= 1
+                open_music.play()
+        case "blue-door":
+            if blue_key < 1:
+                message("蓝钥匙不够", False)
+                match_face()
+                return
+            else:
+                message("你打开了蓝门", False)
+                blue_key -= 1
+                open_music.play()
+        case "red-door":
+            if red_key < 1:
+                message("红钥匙不够", False)
+                match_face()
+                return
+            else:
+                message("你打开了红门", False)
+                red_key -= 1
+                open_music.play()
+        case "green-door":
+            if green_key < 1:
+                message("绿钥匙不够", False)
+                match_face()
+                return
+            else:
+                message("你打开了绿门", False)
+                green_key -= 1
+                open_music.play()
+        case "upstairs":
+            match_face()
+            lvl[dy - 1][dx - 1] = "player"
+            level.config["floor"][current_level] = lvl
+            current_level += 1
+            if current_level >= len(level.config["floor"]) - 1:
+                current_level = len(level.config["floor"]) - 1
+            initFloor()
+            message("上到：" + str(current_level + 1) + "层", False)
+            return
+        case "downstairs":
+            match_face()
+            lvl[dy - 1][dx - 1] = "player"
+            level.config["floor"][current_level] = lvl
+            current_level -= 1
+            if current_level <= 0:
+                current_level = 0
+            initFloor()
+            message("下到：" + str(current_level + 1) + "层", False)
+            return
+        case "ice-magic":
+            message("获得”冰冻魔法“", False)
+            ice_magic = True
+            pick_music.play()
+        case "lucky-coin":
+            message("获得”幸运金币“，金钱 * 2", False)
+            lucky_coin = True
+            pick_music.play()
+        case "holy-water":
+            message("获得”圣水“，不同楼层使用会有恢复不同血量。", False)
+            holy_water = True
+            pick_music.play()
+        case "pickaxe":
+            message("获得”镐子“，可以挖开自己身边的墙壁，假地板需触发。", False)
+            pickaxe = True
+            pick_music.play()
+        case "quake-scroll":
+            message("获得”地震卷轴“，可以炸掉这一整层的墙壁，包括假地板。", False)
+            quake_scroll = True
+            pick_music.play()
+        case "tnt":
+            message("获得”炸弹“，可以炸死自己周围的怪物。", False)
+            tnt = True
+            pick_music.play()
+        case "magic-key":
+            message("获得”魔法钥匙“，可以打开这一层楼的所有门，无视黄门还是红门。", False)
+            magic_key = True
+            pick_music.play()
+        case "lava":
+            if not ice_magic:
+                message("你不能穿过这里。", False)
+                match_face()
+                return
+            else:
+                message("你熄灭了岩浆。", False)
+                extinguish_music.play()
+        case "fake-wall":
+            message("你遇到了假墙壁", False)
+            lvl[dy - 1][dx - 1] = "floor"
+        case "fake-floor":
+            message("你遇到了假地板", False)
+            lvl[dy - 1][dx - 1] = "wall"
+            screen.blit(wall_image, (x, y))
             match_face()
             return
-        else:
-            message("你打开了黄门", False)
-            yellow_key -= 1
-            open_music.play()
-    if lvl[dy - 1][dx - 1] == "blue-door":
-        if blue_key < 1:
-            message("蓝钥匙不够", False)
-            match_face()
-            return
-        else:
-            message("你打开了蓝门", False)
-            blue_key -= 1
-            open_music.play()
-    if lvl[dy - 1][dx - 1] == "red-door":
-        if red_key < 1:
-            message("红钥匙不够", False)
-            match_face()
-            return
-        else:
-            message("你打开了红门", False)
-            red_key -= 1
-            open_music.play()
-    if lvl[dy - 1][dx - 1] == "green-door":
-        if green_key < 1:
-            message("绿钥匙不够", False)
-            match_face()
-            return
-        else:
-            message("你打开了绿门", False)
-            green_key -= 1
-            open_music.play()
-    if lvl[dy - 1][dx - 1] == "upstairs":
-        match_face()
-        lvl[dy - 1][dx - 1] = "player"
-        level.config["floor"][current_level] = lvl
-        current_level += 1
-        if current_level >= len(level.config["floor"]) - 1:
-            current_level = len(level.config["floor"]) - 1
-        initFloor()
-        message("上到：" + str(current_level + 1) + "层", False)
-        return
-    if lvl[dy - 1][dx - 1] == "downstairs":
-        match_face()
-        lvl[dy - 1][dx - 1] = "player"
-        level.config["floor"][current_level] = lvl
-        current_level -= 1
-        if current_level <= 0:
-            current_level = 0
-        initFloor()
-        message("下到：" + str(current_level + 1) + "层", False)
-        return
-    if lvl[dy - 1][dx - 1] == "ice-magic":
-        message("获得”冰冻魔法“", False)
-        ice_magic = True
-        pick_music.play()
-    if lvl[dy - 1][dx - 1] == "lucky-coin":
-        message("获得”幸运金币“，金钱 * 2", False)
-        lucky_coin = True
-        pick_music.play()
-    if lvl[dy - 1][dx - 1] == "holy-water":
-        message("获得”圣水“，不同楼层使用会有恢复不同血量。", False)
-        holy_water = True
-        pick_music.play()
-    if lvl[dy - 1][dx - 1] == "pickaxe":
-        message("获得”镐子“，可以挖开自己身边的墙壁，假地板需触发。", False)
-        pickaxe = True
-        pick_music.play()
-    if lvl[dy - 1][dx - 1] == "quake-scroll":
-        message("获得”地震卷轴“，可以炸掉这一整层的墙壁，包括假地板。", False)
-        quake_scroll = True
-        pick_music.play()
-    if lvl[dy - 1][dx - 1] == "tnt":
-        message("获得”炸弹“，可以炸死自己周围的怪物。", False)
-        tnt = True
-        pick_music.play()
-    if lvl[dy - 1][dx - 1] == "magic-key":
-        message("获得”魔法钥匙“，可以打开这一层楼的所有门，无视黄门还是红门。", False)
-        magic_key = True
-        pick_music.play()
-    if lvl[dy - 1][dx - 1] == "lava":
-        if not ice_magic:
-            message("你不能穿过这里。", False)
-            match_face()
-            return
-        else:
-            message("你熄灭了岩浆。", False)
-    if lvl[dy - 1][dx - 1] == "fake-wall":
-        message("你遇到了假墙壁", False)
-        lvl[dy - 1][dx - 1] = "floor"
-    if lvl[dy - 1][dx - 1] == "fake-floor":
-        message("你遇到了假地板", False)
-        lvl[dy - 1][dx - 1] = "wall"
-        screen.blit(wall_image, (x, y))
-        match_face()
-        return
 
     lvl[dy - 1][dx - 1] = "player"
     # match face:
@@ -627,7 +630,6 @@ def draw_button(txt: str, b: tuple[int, int, int, int], lvl: tuple[int, int], c:
 
 def game_help():
     global screen
-    global is_exit
     global help_page
     for ima in range(0, 16):
         for ge in range(0, 12):
@@ -638,13 +640,11 @@ def game_help():
     draw_button("返回", (200, 100, 412, 650), (472, 680), (200, 200, 200))
     if help_page != len(level.config["help_page"]) - 1:
         draw_button("下一页", (200, 100, 792, 650), (837, 680), (200, 200, 200))
-    running = True
-    while running:
-        if is_exit:
-            running = False
+    while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                is_exit = True
+                pygame.quit()
+                sys.exit()
             if event.type == pygame.MOUSEMOTION:
                 mouse = pygame.mouse.get_pos()
                 mouse_left = mouse[0]
@@ -671,22 +671,18 @@ def game_help():
                     if 650 <= mouse_top <= 750 and 32 <= mouse_left <= 232:
                         help_page -= 1
                         game_help()
-                        running = False
                 if help_page != len(level.config["help_page"]) - 1:
                     if 650 <= mouse_top <= 750 and 792 <= mouse_left <= 992:
                         help_page += 1
                         game_help()
-                        running = False
                 if 650 <= mouse_top <= 750 and 412 <= mouse_left <= 612:
                     game_launch()
-                    running = False
         pygame.display.flip()
         pygame.display.update()
 
 
 def game_launch():
     global screen
-    global is_exit
     for ima in range(0, 16):
         for ge in range(0, 12):
             screen.blit(floor_image, (ima * 64, ge * 64))
@@ -695,13 +691,11 @@ def game_launch():
     screen.blit(text_start_menu, (108, 128))
     draw_button("开始游戏", (200, 100, 400, 300), (430, 330), (200, 200, 200))
     draw_button("帮助", (200, 100, 400, 430), (460, 460), (200, 200, 200))
-    running = True
-    while running:
-        if is_exit:
-            running = False
+    while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                is_exit = True
+                pygame.quit()
+                sys.exit()
             if event.type == pygame.MOUSEMOTION:
                 mouse = pygame.mouse.get_pos()
                 mouse_left = mouse[0]
@@ -720,18 +714,14 @@ def game_launch():
                 mouse_top = mouse[1]
                 if 300 <= mouse_top <= 400 <= mouse_left <= 600:
                     choose_level()
-                    running = False
                 if 530 >= mouse_top >= 430 and 600 >= mouse_left >= 400:
                     game_help()
-                    running = False
         pygame.display.flip()
         pygame.display.update()
-    pygame.quit()
 
 
 def choose_level():
     global player_health, player_attack, player_defence, player_money
-    global is_exit
     global screen
     for ima in range(0, 16):
         for ge in range(0, 12):
@@ -740,13 +730,11 @@ def choose_level():
     draw_button("简单", (200, 100, 400, 230), (460, 260), (200, 200, 200))
     draw_button("普通", (200, 100, 400, 360), (460, 390), (200, 200, 200))
     draw_button("困难", (200, 100, 400, 490), (460, 520), (200, 200, 200))
-    running = True
-    while running:
-        if is_exit:
-            running = False
+    while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                is_exit = True
+                pygame.quit()
+                sys.exit()
             if event.type == pygame.MOUSEMOTION:
                 mouse = pygame.mouse.get_pos()
                 mouse_left = mouse[0]
@@ -778,7 +766,6 @@ def choose_level():
                     player_money = 9999999
                     initFloor()
                     start()
-                    running = False
                 if 400 <= mouse_left <= 600 and 230 <= mouse_top <= 330:
                     player_health = int(level.config["difficulty"]["easy"]["health"])
                     player_attack = int(level.config["difficulty"]["easy"]["attack"])
@@ -786,7 +773,6 @@ def choose_level():
                     player_money = int(level.config["difficulty"]["easy"]["money"])
                     initFloor()
                     start()
-                    running = False
                 if 400 <= mouse_left <= 600 and 360 <= mouse_top <= 460:
                     player_health = int(level.config["difficulty"]["normal"]["health"])
                     player_attack = int(level.config["difficulty"]["normal"]["attack"])
@@ -794,7 +780,6 @@ def choose_level():
                     player_money = int(level.config["difficulty"]["normal"]["money"])
                     initFloor()
                     start()
-                    running = False
                 if 400 <= mouse_left <= 600 and 490 <= mouse_top <= 590:
                     player_health = int(level.config["difficulty"]["hard"]["health"])
                     player_attack = int(level.config["difficulty"]["hard"]["attack"])
@@ -802,7 +787,6 @@ def choose_level():
                     player_money = int(level.config["difficulty"]["hard"]["money"])
                     initFloor()
                     start()
-                    running = False
         pygame.display.flip()
         pygame.display.update()
 
@@ -859,14 +843,18 @@ def blit_initial():
                 screen.blit(sapphire_image, (32 + j * 64, 32 + i * 64))
             elif level.config["floor"][current_level][i][j] == "topaz":
                 screen.blit(topaz_image, (32 + j * 64, 32 + i * 64))
-            elif level.config["floor"][current_level][i][j] == "green-slime":
-                screen.blit(green_slime_image, (32 + j * 64, 32 + i * 64))
-            elif level.config["floor"][current_level][i][j] == "red-slime":
-                screen.blit(red_slime_image, (32 + j * 64, 32 + i * 64))
-            elif level.config["floor"][current_level][i][j] == "blue-slime":
-                screen.blit(blue_slime_image, (32 + j * 64, 32 + i * 64))
-            elif level.config["floor"][current_level][i][j] == "yellow-slime":
-                screen.blit(yellow_slime_image, (32 + j * 64, 32 + i * 64))
+            elif level.config["floor"][current_level][i][j] in level.config["monster"].keys():
+                monster_image = pygame.image.load(
+                    level.config["monster"][level.config["floor"][current_level][i][j]]["texture"])
+                screen.blit(monster_image, (32 + j * 64, 32 + i * 64))
+            # elif level.config["floor"][current_level][i][j] == "green-slime":
+            #     screen.blit(green_slime_image, (32 + j * 64, 32 + i * 64))
+            # elif level.config["floor"][current_level][i][j] == "red-slime":
+            #     screen.blit(red_slime_image, (32 + j * 64, 32 + i * 64))
+            # elif level.config["floor"][current_level][i][j] == "blue-slime":
+            #     screen.blit(blue_slime_image, (32 + j * 64, 32 + i * 64))
+            # elif level.config["floor"][current_level][i][j] == "yellow-slime":
+            #     screen.blit(yellow_slime_image, (32 + j * 64, 32 + i * 64))
             elif level.config["floor"][current_level][i][j] == "red-key":
                 screen.blit(red_key_image, (32 + j * 64, 32 + i * 64))
             elif level.config["floor"][current_level][i][j] == "blue-key":
@@ -898,7 +886,22 @@ def blit_initial():
 
 
 def init():
-    global can_turn
+    global can_turn, ice_magic, lucky_coin, pickaxe, holy_water, magic_key, tnt, quake_scroll
+    global current_level, yellow_key, red_key, blue_key, green_key, face
+    ice_magic = False
+    lucky_coin = False
+    pickaxe = False
+    holy_water = False
+    magic_key = False
+    tnt = False
+    quake_scroll = False
+    yellow_key = 0
+    red_key = 0
+    blue_key = 0
+    green_key = 0
+    current_level = 0
+    face = 1
+    update()
     pygame.mixer.music.load(".\\music\\bgm.mp3")
     pygame.mixer.music.play(-1, 0.0)
     message("=游玩须知=  ：  按Enter键继续……", True)
@@ -915,7 +918,6 @@ def initFloor():
     global screen
     global can_turn, current_level, temp_first
     blit_initial()
-    update()
     if temp_first:
         temp_first = False
         init()
@@ -923,20 +925,24 @@ def initFloor():
 
 def start():
     global screen
-    global can_turn, is_exit, is_fail
+    global can_turn, is_fail, temp_first
     global current_level
     global x, y, dx, dy, face
     global player_health
     global pickaxe, holy_water, quake_scroll, tnt, magic_key
-    running = True
-    while running:
-        if is_exit:
-            running = False
+    while True:
         screen.blit(floor_image, (x, y))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                is_exit = True
+                pygame.quit()
+                sys.exit()
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    pygame.mixer.music.stop()
+                    temp_first = True
+                    level.spawn_json()
+                    level.load_json()
+                    game_launch()
                 if event.key == pygame.K_UP:
                     if can_turn:
                         face = 2
@@ -1040,8 +1046,12 @@ def start():
         draw_player()
         if is_fail:
             screen.blit(failed_image, (x, y))
-            message("你输了，你打了不该打的怪物……按下回车键退出游戏……", True)
-            is_exit = True
+            message("你输了，你打了不该打的怪物……按下回车键退出至标题……", True)
+            pygame.mixer.music.stop()
+            temp_first = True
+            level.spawn_json()
+            level.load_json()
+            game_launch()
         pygame.display.flip()
         pygame.display.update()
 
