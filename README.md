@@ -35,7 +35,7 @@ python.exe main.py
    2. 下载好后点击里面的clickme.bat即可运行。
 4. 二进制exe版本安装教程：
    1. 首先下载Magic-tower.zip
-   2. 下载好后点击里面的exe即可直接运行。
+   2. 下载好后点击里面的main.exe即可直接运行。
 
 - 二者的区别：
 1. 虚拟环境版本：
