@@ -3,17 +3,10 @@ import os
 
 config = {
     "ruby": 5,
+
     "sapphire": 5,
     "topaz": 20,
     "emerald": 200,
-    "villager": {  # 在这里自定义商人
-        "villager-red-key": {
-            "sell": "red-key",
-            "count": 1,
-            "money": 200,
-            "say": "卖红钥匙咯！200金钱1把，你要不要？",
-        }
-    },
     "difficulty": {
         "easy": {
             "health": 10000,
@@ -34,44 +27,77 @@ config = {
             "money": 100
         },
     },
-
+    "villager": {  # 在这里自定义商人
+        "villager-attack": {
+            "sell": "attack",
+            "count": 20,
+            "money": 0,
+            "max": 3,
+            "say": "我不要钱，我将增加你20点攻击力！"
+        },
+        "villager-red-key": {
+            "sell": "red-key",
+            "count": 1,
+            "money": 200,
+            "max": -1,
+            "say": "卖红钥匙咯！200金钱1把，你要不要？",
+        }
+    },
     "messenger": {  # 在这里自定义传话人
         "messenger-tips": {
             "say": [
                 "千万不要捡起上面有笑脸的金币，因为那会让你杀怪的时候掉落比以往少的金钱。",
-                "一定要捡起冰冻魔法，它长得像一个蜘蛛网，无需点击即可使用。可以走过岩浆噢！"
+                "一定要捡起冰冻魔法，它长得像一个蜘蛛网，无需点击即可使用。可以走过岩浆噢！",
+                "存放铁剑的门房间没有门，你可能需要使用魔法翅膀才能获得。"
             ]
         }
     },
-
+    "non-special": {
+        "iron-sword": {
+            "add": "attack",
+            "count": 10,
+            "texture": ".\\image\\iron_sword.png"
+        },
+        "iron-shield": {
+            "add": "defence",
+            "count": 10,
+            "texture": ".\\image\\iron_shield.png"
+        }
+    },
     "monster": {  # 在这里自定义怪物
         "yellow-slime": {
             "health": 20,
             "attack": 7,
             "defence": 7,
             "money": 5,
-            "texture": ".\\image\\yellow_slime.png"
+            "texture": ".\\image\\yellow_slime.png",
+            "say": [
+                "杀死了我，你将万劫不复！！"
+            ]
         },
         "green-slime": {
             "health": 30,
             "attack": 10,
             "defence": 10,
             "money": 8,
-            "texture": ".\\image\\green_slime.png"
+            "texture": ".\\image\\green_slime.png",
+            "say": []
         },
         "red-slime": {
             "health": 50,
             "attack": 15,
             "defence": 15,
             "money": 10,
-            "texture": ".\\image\\red_slime.png"
+            "texture": ".\\image\\red_slime.png",
+            "say": []
         },
         "blue-slime": {
             "health": 80,
             "attack": 20,
             "defence": 20,
             "money": 15,
-            "texture": ".\\image\\blue_slime.png"
+            "texture": ".\\image\\blue_slime.png",
+            "say": []
         }
     },
 
@@ -81,7 +107,7 @@ config = {
              "red-slime", "yellow-slime", "green-slime"],
             ["blue-key", "red-key", "pickaxe", "lucky-coin", "holy-water", "ice-magic", "emerald", "ruby", "sapphire",
              "topaz", "blue-slime"],
-            ["yellow-key", "green-key", "quake-scroll", "magic-key", "tnt", "floor", "floor", "floor", "floor",
+            ["yellow-key", "green-key", "quake-scroll", "magic-key", "tnt", "magic-wing", "iron-sword", "iron-shield", "floor",
              "floor", "floor"],
             ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
             ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
@@ -95,7 +121,8 @@ config = {
             ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "lava", "downstairs"],
         ],
         [
-            ["downstairs", "player", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
+            ["downstairs", "player", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor",
+             "villager-attack"],
             ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
             ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],
             ["floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor", "floor"],

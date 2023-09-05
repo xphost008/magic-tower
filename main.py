@@ -7,11 +7,10 @@
 # @Email   : 273020451@qq.com
 # @File    : main.py
 # @Software: MagicTower
-import sys
-
 import pygame
 from pygame.locals import *
 import level
+import sys
 
 # 初始化pygame
 pygame.init()
@@ -58,6 +57,7 @@ pickaxe_image = pygame.image.load(".\\image\\pickaxe.png")  # 镐子
 tnt_image = pygame.image.load(".\\image\\tnt.png")  # 炸弹
 magic_key_image = pygame.image.load(".\\image\\magic_key.png")  # 魔法钥匙
 quake_scroll_image = pygame.image.load(".\\image\\quake_scroll.png")  # 地震卷轴
+magic_wing_image = pygame.image.load(".\\image\\magic_wing.png")
 
 # green_slime_image = pygame.image.load(".\\image\\green_slime.png")  # 绿色史莱姆
 # blue_slime_image = pygame.image.load(".\\image\\blue_slime.png")  # 蓝色史莱姆
@@ -84,9 +84,10 @@ ding_music = pygame.mixer.Sound(".\\music\\ogg\\ding.ogg")
 kill_music = pygame.mixer.Sound(".\\music\\ogg\\kill.ogg")
 open_music = pygame.mixer.Sound(".\\music\\ogg\\open.ogg")
 pick_music = pygame.mixer.Sound(".\\music\\ogg\\pick.ogg")
-extinguish_music = pygame.mixer.Sound(".\\music\\ogg\\fizz.ogg")
+fizz_music = pygame.mixer.Sound(".\\music\\ogg\\fizz.ogg")
 yes_music = pygame.mixer.Sound(".\\music\\ogg\\yes.ogg")
 no_music = pygame.mixer.Sound(".\\music\\ogg\\no.ogg")
+idle_music = pygame.mixer.Sound(".\\music\\ogg\\idle.ogg")
 
 yellow_key = 0  # 黄钥匙个数
 blue_key = 0  # 蓝钥匙个数
@@ -103,6 +104,7 @@ holy_water = False  # 是否拥有圣水
 magic_key = False  # 是否拥有稿子
 tnt = False  # 是否拥有圣水
 quake_scroll = False  # 是否拥有稿子
+magic_wing = 0
 
 current_level = 0  # 当前楼层
 face = 1  # 玩家朝向【1：前、2：后、3：左、4：右】
@@ -110,6 +112,7 @@ face = 1  # 玩家朝向【1：前、2：后、3：左、4：右】
 villager_sell = ""
 villager_count = 0
 villager_money = 0
+villager_max = 0
 
 x = 0  # 当前走过的横坐标真实值
 y = 0  # 当前走过的纵坐标真实值
@@ -117,6 +120,7 @@ dx = 0  # 当前走过的横坐标比例值
 dy = 0  # 当前走过的纵坐标比例值
 
 help_page = 0  # 帮助索引页面。
+temp_first = True  # 是否为第一次启动游戏，或者按下Q键退出游戏。
 
 
 def match_face():
@@ -230,6 +234,13 @@ def update_prop():
         screen.blit(quake_scroll_image, (896, 320))
     else:
         screen.blit(no_prop, (896, 320))
+    if magic_wing > 0:
+        screen.blit(magic_wing_image, (960, 320))
+        count = font_message.render(str(magic_wing), True, (1, 1, 1))
+        count.set_colorkey((0, 0, 0, 255))
+        screen.blit(count, (1008, 368))
+    else:
+        screen.blit(no_prop, (960, 320))
     pygame.draw.rect(screen, (0, 0, 0), ((768, 256), (256, 256)), width=3)
 
 
@@ -277,6 +288,7 @@ def message(text: str, is_lock: bool):
     global screen
     global player_money, player_attack, player_health, player_defence
     global red_key, yellow_key, blue_key, green_key
+    global villager_max
     surface = pygame.Surface((256, 256))
     surface.fill((192, 192, 192))
     screen.blit(surface, (768, 512))
@@ -319,21 +331,23 @@ def message(text: str, is_lock: bool):
                         if villager_sell != "":
                             if player_money >= villager_money:
                                 player_money -= villager_money
-                                if villager_sell == "attack":
-                                    player_attack += villager_count
-                                elif villager_sell == "health":
-                                    player_health += villager_count
-                                elif villager_sell == "defence":
-                                    player_defence += villager_count
-                                elif villager_sell == "red-key":
-                                    red_key += villager_count
-                                elif villager_sell == "yellow-key":
-                                    yellow_key += villager_count
-                                elif villager_sell == "blue-key":
-                                    blue_key += villager_count
-                                elif villager_sell == "green-key":
-                                    green_key += villager_count
+                                match villager_sell:
+                                    case "attack":
+                                        player_attack += villager_count
+                                    case "health":
+                                        player_health += villager_count
+                                    case "defence":
+                                        player_defence += villager_count
+                                    case "red-key":
+                                        red_key += villager_count
+                                    case "yellow-key":
+                                        yellow_key += villager_count
+                                    case "blue-key":
+                                        blue_key += villager_count
+                                    case "green-key":
+                                        green_key += villager_count
                                 message("交易愉快！", False)
+                                villager_max -= 1
                                 yes_music.play()
                                 update()
                             else:
@@ -402,8 +416,8 @@ def player_move():
     global red_key, blue_key, green_key, yellow_key
     global is_fail, can_turn, current_level
     global x, y, dx, dy
-    global ice_magic, lucky_coin, holy_water, pickaxe, quake_scroll, magic_key, tnt
-    global villager_sell, villager_money, villager_count
+    global ice_magic, lucky_coin, holy_water, pickaxe, quake_scroll, magic_key, tnt, magic_wing
+    global villager_sell, villager_money, villager_count, villager_max
     if is_fail:
         return
     x = max(32, min(672, x))
@@ -420,15 +434,23 @@ def player_move():
                 message("无法击打" + key, False)
                 match_face()
                 return
-            player_health -= reduce_hp(player_attack, player_defence, int(level.config["monster"][key]["attack"]),
-                                       int(level.config["monster"][key]["defence"]), int(level.config["monster"][key]["health"]))
+            player_health -= reduce_hp(player_attack, player_defence,
+                                       int(level.config["monster"][key]["attack"]),
+                                       int(level.config["monster"][key]["defence"]),
+                                       int(level.config["monster"][key]["health"]))
+            kill_music.play()
             if lucky_coin:
                 player_money += int(level.config["monster"][key]["money"]) * 2
+                for i in level.config["monster"][key]["say"]:
+                    message(i, True)
+                can_turn = True
                 message("你战胜了" + key + "，金钱+" + str(level.config["monster"][key]["money"] * 2), False)
             else:
                 player_money += int(level.config["monster"][key]["money"])
+                for i in level.config["monster"][key]["say"]:
+                    message(i, True)
+                can_turn = True
                 message("你战胜了" + key + "，金钱+" + str(level.config["monster"][key]["money"]), False)
-            kill_music.play()
     # if lvl[dy - 1][dx - 1] == "slime":
     #     if player_attack < 10:
     #         return x, y, dx, dy
@@ -442,22 +464,52 @@ def player_move():
             villager_sell = str(level.config["villager"][key]["sell"])
             villager_count = int(level.config["villager"][key]["count"])
             villager_money = int(level.config["villager"][key]["money"])
-            message(level.config["villager"][key]["say"] + "\n按Y确定，按N取消", True)
+            villager_max = int(level.config["villager"][key]["max"])
+            idle_music.play()
+            if villager_max < 0:
+                message(level.config["villager"][key]["say"] + "\n按Y确定，按N取消，剩余∞次", True)
+            else:
+                message(level.config["villager"][key]["say"] + "\n按Y确定，按N取消，剩余" + str(villager_max) + "次", True)
+            if villager_max == 0:
+                tx, ty, tdx, tdy = return_pre_face()
+                level.config["floor"][current_level][tdy - 1][tdx - 1] = "floor"
+                screen.blit(floor_image, (tx, ty))
+                can_turn = True
+                villager_sell = ""
+                villager_count = 0
+                villager_money = 0
+                villager_max = 0
+                return
+            level.config["villager"][key]["max"] = villager_max
             can_turn = True
             villager_sell = ""
             villager_count = 0
             villager_money = 0
+            villager_max = 0
             return
     for key in level.config["messenger"].keys():
         if lvl[dy - 1][dx - 1] == key:
-            lvl[dy - 1][dx - 1] = "floor"
             match_face()
+            tx, ty, tdx, tdy = return_pre_face()
             for say in level.config["messenger"][key]["say"]:
+                idle_music.play()
                 message(say, True)
             can_turn = True
-            tx, ty, tdx, tdy = return_pre_face()
+            level.config["floor"][current_level][tdy - 1][tdx - 1] = "floor"
             screen.blit(floor_image, (tx, ty))
             return
+    for key in level.config["non-special"].keys():
+        if lvl[dy - 1][dx - 1] == key:
+            match str(level.config["non-special"][key]["add"]):
+                case "attack":
+                    player_attack += int(level.config["non-special"][key]["count"])
+                    message("你捡起了" + key + "，攻击+" +
+                            str(level.config["non-special"][key]["count"]), False)
+                case "defence":
+                    player_defence += int(level.config["non-special"][key]["count"])
+                    message("你捡起了" + key + "，防御+" +
+                            str(level.config["non-special"][key]["count"]), False)
+            pick_music.play()
     match lvl[dy - 1][dx - 1]:
         case "topaz":
             player_money += int(level.config["topaz"])
@@ -534,7 +586,7 @@ def player_move():
             current_level += 1
             if current_level >= len(level.config["floor"]) - 1:
                 current_level = len(level.config["floor"]) - 1
-            initFloor()
+            init_floor()
             message("上到：" + str(current_level + 1) + "层", False)
             return
         case "downstairs":
@@ -544,11 +596,11 @@ def player_move():
             current_level -= 1
             if current_level <= 0:
                 current_level = 0
-            initFloor()
+            init_floor()
             message("下到：" + str(current_level + 1) + "层", False)
             return
         case "ice-magic":
-            message("获得”冰冻魔法“", False)
+            message("获得”冰冻魔法“，现在你可以走过岩浆了。", False)
             ice_magic = True
             pick_music.play()
         case "lucky-coin":
@@ -575,6 +627,10 @@ def player_move():
             message("获得”魔法钥匙“，可以打开这一层楼的所有门，无视黄门还是红门。", False)
             magic_key = True
             pick_music.play()
+        case "magic-wing":
+            message("获得”魔法翅膀“，现在你可以按照中心对称飞房间了。", False)
+            magic_wing = 3
+            pick_music.play()
         case "lava":
             if not ice_magic:
                 message("你不能穿过这里。", False)
@@ -582,7 +638,7 @@ def player_move():
                 return
             else:
                 message("你熄灭了岩浆。", False)
-                extinguish_music.play()
+                fizz_music.play()
         case "fake-wall":
             message("你遇到了假墙壁", False)
             lvl[dy - 1][dx - 1] = "floor"
@@ -764,28 +820,28 @@ def choose_level():
                     player_attack = 9999999
                     player_defence = 9999999
                     player_money = 9999999
-                    initFloor()
+                    init_floor()
                     start()
                 if 400 <= mouse_left <= 600 and 230 <= mouse_top <= 330:
                     player_health = int(level.config["difficulty"]["easy"]["health"])
                     player_attack = int(level.config["difficulty"]["easy"]["attack"])
                     player_defence = int(level.config["difficulty"]["easy"]["defence"])
                     player_money = int(level.config["difficulty"]["easy"]["money"])
-                    initFloor()
+                    init_floor()
                     start()
                 if 400 <= mouse_left <= 600 and 360 <= mouse_top <= 460:
                     player_health = int(level.config["difficulty"]["normal"]["health"])
                     player_attack = int(level.config["difficulty"]["normal"]["attack"])
                     player_defence = int(level.config["difficulty"]["normal"]["defence"])
                     player_money = int(level.config["difficulty"]["normal"]["money"])
-                    initFloor()
+                    init_floor()
                     start()
                 if 400 <= mouse_left <= 600 and 490 <= mouse_top <= 590:
                     player_health = int(level.config["difficulty"]["hard"]["health"])
                     player_attack = int(level.config["difficulty"]["hard"]["attack"])
                     player_defence = int(level.config["difficulty"]["hard"]["defence"])
                     player_money = int(level.config["difficulty"]["hard"]["money"])
-                    initFloor()
+                    init_floor()
                     start()
         pygame.display.flip()
         pygame.display.update()
@@ -825,6 +881,8 @@ def blit_initial():
                 screen.blit(quake_scroll_image, (32 + j * 64, 32 + i * 64))
             elif level.config["floor"][current_level][i][j] == "magic-key":
                 screen.blit(magic_key_image, (32 + j * 64, 32 + i * 64))
+            elif level.config["floor"][current_level][i][j] == "magic-wing":
+                screen.blit(magic_wing_image, (32 + j * 64, 32 + i * 64))
             elif "wall" in level.config["floor"][current_level][i][j]:
                 screen.blit(wall_image, (32 + j * 64, 32 + i * 64))
             elif "floor" in level.config["floor"][current_level][i][j]:
@@ -847,6 +905,10 @@ def blit_initial():
                 monster_image = pygame.image.load(
                     level.config["monster"][level.config["floor"][current_level][i][j]]["texture"])
                 screen.blit(monster_image, (32 + j * 64, 32 + i * 64))
+            elif level.config["floor"][current_level][i][j] in level.config["non-special"].keys():
+                non_special_image = pygame.image.load(
+                    level.config["non-special"][level.config["floor"][current_level][i][j]]["texture"])
+                screen.blit(non_special_image, (32 + j * 64, 32 + i * 64))
             # elif level.config["floor"][current_level][i][j] == "green-slime":
             #     screen.blit(green_slime_image, (32 + j * 64, 32 + i * 64))
             # elif level.config["floor"][current_level][i][j] == "red-slime":
@@ -871,9 +933,9 @@ def blit_initial():
                 screen.blit(green_door_image, (32 + j * 64, 32 + i * 64))
             elif level.config["floor"][current_level][i][j] == "yellow-door":
                 screen.blit(yellow_door_image, (32 + j * 64, 32 + i * 64))
-            elif "villager" in level.config["floor"][current_level][i][j]:
+            elif level.config["floor"][current_level][i][j] in level.config["villager"].keys():
                 screen.blit(villager_image, (32 + j * 64, 32 + i * 64))
-            elif "messenger" in level.config["floor"][current_level][i][j]:
+            elif level.config["floor"][current_level][i][j] in level.config["messenger"].keys():
                 screen.blit(messenger_image, (32 + j * 64, 32 + i * 64))
             elif level.config["floor"][current_level][i][j] == "player":
                 screen.blit(player_face_image, (32 + j * 64, 32 + i * 64))
@@ -886,8 +948,8 @@ def blit_initial():
 
 
 def init():
-    global can_turn, ice_magic, lucky_coin, pickaxe, holy_water, magic_key, tnt, quake_scroll
-    global current_level, yellow_key, red_key, blue_key, green_key, face
+    global can_turn, ice_magic, lucky_coin, pickaxe, holy_water, magic_key, tnt, quake_scroll, magic_wing
+    global yellow_key, red_key, blue_key, green_key, face
     ice_magic = False
     lucky_coin = False
     pickaxe = False
@@ -895,11 +957,11 @@ def init():
     magic_key = False
     tnt = False
     quake_scroll = False
+    magic_wing = 0
     yellow_key = 0
     red_key = 0
     blue_key = 0
     green_key = 0
-    current_level = 0
     face = 1
     update()
     pygame.mixer.music.load(".\\music\\bgm.mp3")
@@ -911,16 +973,16 @@ def init():
     can_turn = True
 
 
-temp_first = True
-
-
-def initFloor():
+def init_floor():
     global screen
     global can_turn, current_level, temp_first
-    blit_initial()
     if temp_first:
+        current_level = 0
+        blit_initial()
         temp_first = False
         init()
+    else:
+        blit_initial()
 
 
 def start():
@@ -929,7 +991,7 @@ def start():
     global current_level
     global x, y, dx, dy, face
     global player_health
-    global pickaxe, holy_water, quake_scroll, tnt, magic_key
+    global pickaxe, holy_water, quake_scroll, tnt, magic_key, magic_wing
     while True:
         screen.blit(floor_image, (x, y))
         for event in pygame.event.get():
@@ -1042,6 +1104,22 @@ def start():
                         message("你使用了地震卷轴，现在这一层楼全部的墙都已被破坏。", False)
                         quake_scroll = False
                         update()
+                if 960 < mouse_left < 1024 and 320 < mouse_top < 384:
+                    if magic_wing > 0:
+                        ddx = 12 - dx
+                        ddy = 12 - dy
+                        if level.config["floor"][current_level][ddy - 1][ddx - 1] != "floor":
+                            message("你不能飞过去，对面不是地板！", False)
+                        else:
+                            level.config["floor"][current_level][dy - 1][dx - 1] = "floor"
+                            dx = ddx
+                            dy = ddy
+                            x = 32 + (dx - 1) * 64
+                            y = 32 + (dy - 1) * 64
+                            level.config["floor"][current_level][dy - 1][dx - 1] = "player"
+                            magic_wing -= 1
+                            message("你使用了魔法翅膀，现在你已经飞到了中心对称的对面。剩余" + str(magic_wing) + "次。", False)
+                            update()
         player_move()
         draw_player()
         if is_fail:

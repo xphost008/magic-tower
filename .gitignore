@@ -1,5 +1,6 @@
 # pycharm
 __pycache__/
+.idea/
 
 # my test
 background.png
