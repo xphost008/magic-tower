@@ -27,47 +27,47 @@ player_attack = 0  # 玩家攻击
 player_defence = 0  # 玩家防御
 player_money = 0  # 玩家金钱
 
-failed_image = pygame.image.load(".\\image\\boom.png")  # 死亡动画
+failed_image = pygame.image.load(".\\image\\human\\boom.png")  # 死亡动画
 
-player_face_image = pygame.image.load(".\\image\\player_face.png")  # 玩家正脸
-player_left_image = pygame.image.load(".\\image\\player_left.png")  # 玩家左脸
-player_right_image = pygame.image.load(".\\image\\player_right.png")  # 玩家右脸
-player_back_image = pygame.image.load(".\\image\\player_back.png")  # 玩家背面
+player_face_image = pygame.image.load(".\\image\\human\\player_face.png")  # 玩家正脸
+player_left_image = pygame.image.load(".\\image\\human\\player_left.png")  # 玩家左脸
+player_right_image = pygame.image.load(".\\image\\human\\player_right.png")  # 玩家右脸
+player_back_image = pygame.image.load(".\\image\\human\\player_back.png")  # 玩家背面
 
-wall_image = pygame.image.load(".\\image\\wall.png")  # 墙壁
-floor_image = pygame.image.load(".\\image\\floor.png")  # 地板
-upstairs = pygame.image.load(".\\image\\upstairs.png")  # 上楼
-downstairs = pygame.image.load(".\\image\\downstairs.png")  # 下楼
-lava_image = pygame.image.load(".\\image\\lava.png")  # 岩浆
+wall_image = pygame.image.load(".\\image\\full_floor\\wall.png")  # 墙壁
+floor_image = pygame.image.load(".\\image\\full_floor\\floor.png")  # 地板
+upstairs = pygame.image.load(".\\image\\full_floor\\upstairs.png")  # 上楼
+downstairs = pygame.image.load(".\\image\\full_floor\\downstairs.png")  # 下楼
+lava_image = pygame.image.load(".\\image\\full_floor\\lava.png")  # 岩浆
 
-emerald_image = pygame.image.load(".\\image\\emerald.png")  # 绿宝石
-sapphire_image = pygame.image.load(".\\image\\sapphire.png")  # 蓝宝石
-topaz_image = pygame.image.load(".\\image\\topaz.png")  # 黄宝石
-ruby_image = pygame.image.load(".\\image\\ruby.png")  # 红宝石
+emerald_image = pygame.image.load(".\\image\\props\\emerald.png")  # 绿宝石
+sapphire_image = pygame.image.load(".\\image\\props\\sapphire.png")  # 蓝宝石
+topaz_image = pygame.image.load(".\\image\\props\\topaz.png")  # 黄宝石
+ruby_image = pygame.image.load(".\\image\\props\\ruby.png")  # 红宝石
+green_key_image = pygame.image.load(".\\image\\props\\green_key.png")  # 绿钥匙
+blue_key_image = pygame.image.load(".\\image\\props\\blue_key.png")  # 蓝钥匙
+yellow_key_image = pygame.image.load(".\\image\\props\\yellow_key.png")  # 黄钥匙
+red_key_image = pygame.image.load(".\\image\\props\\red_key.png")  # 红钥匙
 
-green_key_image = pygame.image.load(".\\image\\green_key.png")  # 绿钥匙
-blue_key_image = pygame.image.load(".\\image\\blue_key.png")  # 蓝钥匙
-yellow_key_image = pygame.image.load(".\\image\\yellow_key.png")  # 黄钥匙
-red_key_image = pygame.image.load(".\\image\\red_key.png")  # 红钥匙
-
-ice_magic_image = pygame.image.load(".\\image\\ice_magic.png")  # 冰冻魔法
-lucky_coin_image = pygame.image.load(".\\image\\lucky_coin.png")  # 幸运金币
-holy_water_image = pygame.image.load(".\\image\\holy_water.png")  # 圣水
-pickaxe_image = pygame.image.load(".\\image\\pickaxe.png")  # 镐子
-tnt_image = pygame.image.load(".\\image\\tnt.png")  # 炸弹
-magic_key_image = pygame.image.load(".\\image\\magic_key.png")  # 魔法钥匙
-quake_scroll_image = pygame.image.load(".\\image\\quake_scroll.png")  # 地震卷轴
-magic_wing_image = pygame.image.load(".\\image\\magic_wing.png")
+ice_magic_image = pygame.image.load(".\\image\\special\\ice_magic.png")  # 冰冻魔法
+lucky_coin_image = pygame.image.load(".\\image\\special\\lucky_coin.png")  # 幸运金币
+holy_water_image = pygame.image.load(".\\image\\special\\holy_water.png")  # 圣水
+pickaxe_image = pygame.image.load(".\\image\\special\\pickaxe.png")  # 镐子
+tnt_image = pygame.image.load(".\\image\\special\\tnt.png")  # 炸弹
+magic_key_image = pygame.image.load(".\\image\\special\\magic_key.png")  # 魔法钥匙
+quake_scroll_image = pygame.image.load(".\\image\\special\\quake_scroll.png")  # 地震卷轴
+magic_wing_image = pygame.image.load(".\\image\\special\\magic_wing.png")  # 魔法翅膀
 
 # green_slime_image = pygame.image.load(".\\image\\green_slime.png")  # 绿色史莱姆
 # blue_slime_image = pygame.image.load(".\\image\\blue_slime.png")  # 蓝色史莱姆
 # red_slime_image = pygame.image.load(".\\image\\red_slime.png")  # 红色史莱姆
 # yellow_slime_image = pygame.image.load(".\\image\\yellow_slime.png")  # 黄色史莱姆
 
-green_door_image = pygame.image.load(".\\image\\green_door.png")  # 绿门
-blue_door_image = pygame.image.load(".\\image\\blue_door.png")  # 蓝门
-red_door_image = pygame.image.load(".\\image\\red_door.png")  # 红门
-yellow_door_image = pygame.image.load(".\\image\\yellow_door.png")  # 黄门
+green_door_image = pygame.image.load(".\\image\\full_floor\\green_door.png")  # 绿门
+blue_door_image = pygame.image.load(".\\image\\full_floor\\blue_door.png")  # 蓝门
+red_door_image = pygame.image.load(".\\image\\full_floor\\red_door.png")  # 红门
+yellow_door_image = pygame.image.load(".\\image\\full_floor\\yellow_door.png")  # 黄门
+magic_door_image = pygame.image.load(".\\image\\full_floor\\magic_door.png")  # 魔法门
 
 font_attribute = pygame.font.Font(".\\font\\msyh.ttc", 20)  # 属性栏字体
 font_start_menu = pygame.font.Font(".\\font\\simfang.ttf", 96)  # 界面大标题
@@ -76,9 +76,9 @@ font_message = pygame.font.Font(".\\font\\msyh.ttc", 16)  # 信息框字体
 font_level = pygame.font.Font(".\\font\\msyh.ttc", 42)  # 楼层字体
 font_help = pygame.font.Font(".\\font\\msyh.ttc", 24)  # 帮助字体
 
-villager_image = pygame.image.load(".\\image\\villager.png")  # 商人
-messenger_image = pygame.image.load(".\\image\\messenger.png")  # 传话人
-error_image = pygame.image.load(".\\image\\error.png")  # 错误贴图
+villager_image = pygame.image.load(".\\image\\human\\villager.png")  # 商人
+messenger_image = pygame.image.load(".\\image\\human\\messenger.png")  # 传话人
+error_image = pygame.image.load(".\\image\\full_floor\\error.png")  # 错误贴图
 
 ding_music = pygame.mixer.Sound(".\\music\\ogg\\ding.ogg")
 kill_music = pygame.mixer.Sound(".\\music\\ogg\\kill.ogg")
@@ -121,6 +121,8 @@ dy = 0  # 当前走过的纵坐标比例值
 
 help_page = 0  # 帮助索引页面。
 temp_first = True  # 是否为第一次启动游戏，或者按下Q键退出游戏。
+allow_cheat = True  # 是否允许作弊
+temp_floor2 = True  # 楼层2中的特殊事件变量。
 
 
 def match_face():
@@ -176,8 +178,10 @@ def reduce_hp(own_attack: int, own_defence: int, enemy_attack: int, enemy_defenc
     :param enemy_attack: 敌方攻击
     :param enemy_defence: 敌方防御
     :param enemy_hp: 敌方血量
-    :return: 己方克除血量
+    :return: 己方克除血量，-1则不允许攻击。
     """
+    if own_attack <= enemy_defence:
+        return -1
     if enemy_attack <= own_defence:
         return 0
     red = (round(enemy_hp / (own_attack - enemy_defence))) * (enemy_attack - own_defence)
@@ -278,7 +282,7 @@ def help_message(text: str):
         screen.blit(text, (46, 42 + 28 * i))
 
 
-def message(text: str, is_lock: bool):
+def message(text: str, is_lock: bool = False):
     """
     :param text: 信息框文本【自动换行】。
     :param is_lock: 是否锁住屏幕
@@ -346,17 +350,17 @@ def message(text: str, is_lock: bool):
                                         blue_key += villager_count
                                     case "green-key":
                                         green_key += villager_count
-                                message("交易愉快！", False)
+                                message("交易愉快！")
                                 villager_max -= 1
                                 yes_music.play()
                                 update()
                             else:
-                                message("金钱不够……", False)
+                                message("金钱不够……")
                                 no_music.play()
                             return
                     if event.key == pygame.K_n:
                         if villager_sell != "":
-                            message("你取消了交易。", False)
+                            message("你取消了交易。")
                             no_music.play()
                             update()
                             return
@@ -428,29 +432,40 @@ def player_move():
     if lvl[dy - 1][dx - 1] == "wall":
         match_face()
         return
+    if lvl[dy - 1][dx - 1] == "magic-door":
+        message("你需要通过一些特殊手段才能打开这扇门。")
+        match_face()
+        return
     for key in level.config["monster"].keys():
         if lvl[dy - 1][dx - 1] == key:
-            if player_attack < int(level.config["monster"][key]["defence"]):
-                message("无法击打" + key, False)
+            # if player_attack < int(level.config["monster"][key]["defence"]):
+            #     message("无法击打" + level.config["monster"][key]["name"])
+            #     match_face()
+            #     return
+            red = reduce_hp(player_attack, player_defence,
+                            int(level.config["monster"][key]["attack"]),
+                            int(level.config["monster"][key]["defence"]),
+                            int(level.config["monster"][key]["health"]))
+            if red < 0:
+                message("无法击打" + level.config["monster"][key]["name"])
                 match_face()
                 return
-            player_health -= reduce_hp(player_attack, player_defence,
-                                       int(level.config["monster"][key]["attack"]),
-                                       int(level.config["monster"][key]["defence"]),
-                                       int(level.config["monster"][key]["health"]))
+            player_health -= red
             kill_music.play()
             if lucky_coin:
                 player_money += int(level.config["monster"][key]["money"]) * 2
                 for i in level.config["monster"][key]["say"]:
                     message(i, True)
                 can_turn = True
-                message("你战胜了" + key + "，金钱+" + str(level.config["monster"][key]["money"] * 2), False)
+                message("你战胜了" + level.config["monster"][key]["name"] + "，金钱+" + str(
+                    level.config["monster"][key]["money"] * 2))
             else:
                 player_money += int(level.config["monster"][key]["money"])
                 for i in level.config["monster"][key]["say"]:
                     message(i, True)
                 can_turn = True
-                message("你战胜了" + key + "，金钱+" + str(level.config["monster"][key]["money"]), False)
+                message("你战胜了" + level.config["monster"][key]["name"] + "，金钱+" + str(
+                    level.config["monster"][key]["money"]))
     # if lvl[dy - 1][dx - 1] == "slime":
     #     if player_attack < 10:
     #         return x, y, dx, dy
@@ -469,7 +484,8 @@ def player_move():
             if villager_max < 0:
                 message(level.config["villager"][key]["say"] + "\n按Y确定，按N取消，剩余∞次", True)
             else:
-                message(level.config["villager"][key]["say"] + "\n按Y确定，按N取消，剩余" + str(villager_max) + "次", True)
+                message(level.config["villager"][key]["say"] + "\n按Y确定，按N取消，剩余" + str(villager_max) + "次",
+                        True)
             if villager_max == 0:
                 tx, ty, tdx, tdy = return_pre_face()
                 level.config["floor"][current_level][tdy - 1][tdx - 1] = "floor"
@@ -504,79 +520,79 @@ def player_move():
                 case "attack":
                     player_attack += int(level.config["non-special"][key]["count"])
                     message("你捡起了" + key + "，攻击+" +
-                            str(level.config["non-special"][key]["count"]), False)
+                            str(level.config["non-special"][key]["count"]))
                 case "defence":
                     player_defence += int(level.config["non-special"][key]["count"])
                     message("你捡起了" + key + "，防御+" +
-                            str(level.config["non-special"][key]["count"]), False)
+                            str(level.config["non-special"][key]["count"]))
             pick_music.play()
     match lvl[dy - 1][dx - 1]:
         case "topaz":
             player_money += int(level.config["topaz"])
-            message("你吃掉了黄宝石，金钱+" + str(level.config["topaz"]), False)
+            message("你吃掉了黄宝石，金钱+" + str(level.config["topaz"]))
             pick_music.play()
         case "sapphire":
             player_defence += int(level.config["sapphire"])
-            message("你吃掉了蓝宝石，防御+" + str(level.config["sapphire"]), False)
+            message("你吃掉了蓝宝石，防御+" + str(level.config["sapphire"]))
             pick_music.play()
         case "ruby":
             player_attack += int(level.config["ruby"])
-            message("你吃掉了红宝石，攻击+" + str(level.config["ruby"]), False)
+            message("你吃掉了红宝石，攻击+" + str(level.config["ruby"]))
             pick_music.play()
         case "emerald":
             player_health += int(level.config["emerald"])
-            message("你吃掉了绿宝石，生命+" + str(level.config["emerald"]), False)
+            message("你吃掉了绿宝石，生命+" + str(level.config["emerald"]))
             pick_music.play()
         case "yellow-key":
             yellow_key += 1
-            message("你得到了黄钥匙", False)
+            message("你得到了黄钥匙")
             pick_music.play()
         case "green-key":
             green_key += 1
-            message("你得到了绿钥匙", False)
+            message("你得到了绿钥匙")
             pick_music.play()
         case "blue-key":
             blue_key += 1
-            message("你得到了蓝钥匙", False)
+            message("你得到了蓝钥匙")
             pick_music.play()
         case "red-key":
             red_key += 1
-            message("你得到了红钥匙", False)
+            message("你得到了红钥匙")
             pick_music.play()
         case "yellow-door":
             if yellow_key < 1:
-                message("黄钥匙不够", False)
+                message("黄钥匙不够")
                 match_face()
                 return
             else:
-                message("你打开了黄门", False)
+                message("你打开了黄门")
                 yellow_key -= 1
                 open_music.play()
         case "blue-door":
             if blue_key < 1:
-                message("蓝钥匙不够", False)
+                message("蓝钥匙不够")
                 match_face()
                 return
             else:
-                message("你打开了蓝门", False)
+                message("你打开了蓝门")
                 blue_key -= 1
                 open_music.play()
         case "red-door":
             if red_key < 1:
-                message("红钥匙不够", False)
+                message("红钥匙不够")
                 match_face()
                 return
             else:
-                message("你打开了红门", False)
+                message("你打开了红门")
                 red_key -= 1
                 open_music.play()
         case "green-door":
             if green_key < 1:
-                message("绿钥匙不够", False)
+                message("绿钥匙不够")
                 match_face()
                 return
             else:
-                message("你打开了绿门", False)
+                message("你打开了绿门")
                 green_key -= 1
                 open_music.play()
         case "upstairs":
@@ -587,7 +603,7 @@ def player_move():
             if current_level >= len(level.config["floor"]) - 1:
                 current_level = len(level.config["floor"]) - 1
             init_floor()
-            message("上到：" + str(current_level + 1) + "层", False)
+            message("上到：" + str(current_level + 1) + "层")
             return
         case "downstairs":
             match_face()
@@ -597,57 +613,69 @@ def player_move():
             if current_level <= 0:
                 current_level = 0
             init_floor()
-            message("下到：" + str(current_level + 1) + "层", False)
+            message("下到：" + str(current_level + 1) + "层")
             return
         case "ice-magic":
-            message("获得”冰冻魔法“，现在你可以走过岩浆了。", False)
+            message("获得”冰冻魔法“，现在你可以走过岩浆了。")
             ice_magic = True
             pick_music.play()
         case "lucky-coin":
-            message("获得”幸运金币“，金钱 * 2", False)
+            message("获得”幸运金币“，金钱 * 2")
             lucky_coin = True
             pick_music.play()
         case "holy-water":
-            message("获得”圣水“，不同楼层使用会有恢复不同血量。", False)
+            message("获得”圣水“，不同楼层使用会有恢复不同血量。")
             holy_water = True
             pick_music.play()
         case "pickaxe":
-            message("获得”镐子“，可以挖开自己身边的墙壁，假地板需触发。", False)
+            message("获得”镐子“，可以挖开自己身边的墙壁，假地板需触发。")
             pickaxe = True
             pick_music.play()
         case "quake-scroll":
-            message("获得”地震卷轴“，可以炸掉这一整层的墙壁，包括假地板。", False)
+            message("获得”地震卷轴“，可以炸掉这一整层的墙壁，包括假地板。")
             quake_scroll = True
             pick_music.play()
         case "tnt":
-            message("获得”炸弹“，可以炸死自己周围的怪物。", False)
+            message("获得”炸弹“，可以炸死自己周围的怪物。")
             tnt = True
             pick_music.play()
         case "magic-key":
-            message("获得”魔法钥匙“，可以打开这一层楼的所有门，无视黄门还是红门。", False)
+            message("获得”魔法钥匙“，可以打开这一层楼的所有门，无视黄门还是红门。")
             magic_key = True
             pick_music.play()
         case "magic-wing":
-            message("获得”魔法翅膀“，现在你可以按照中心对称飞房间了。", False)
+            message("获得”魔法翅膀“，现在你可以按照中心对称飞房间了。")
             magic_wing = 3
             pick_music.play()
         case "lava":
             if not ice_magic:
-                message("你不能穿过这里。", False)
+                message("你不能穿过这里。")
                 match_face()
                 return
             else:
-                message("你熄灭了岩浆。", False)
+                message("你熄灭了岩浆。")
                 fizz_music.play()
         case "fake-wall":
-            message("你遇到了假墙壁", False)
+            message("你遇到了假墙壁")
             lvl[dy - 1][dx - 1] = "floor"
         case "fake-floor":
-            message("你遇到了假地板", False)
+            message("你遇到了假地板")
             lvl[dy - 1][dx - 1] = "wall"
             screen.blit(wall_image, (x, y))
             match_face()
             return
+    match current_level:
+        case 1:
+            global temp_floor2
+            if (((level.config["floor"][1][1][3] == "player" and
+                  level.config["floor"][1][1][5] == "floor") or
+                 (level.config["floor"][1][1][5] == "player" and
+                  level.config["floor"][1][1][3] == "floor")) and temp_floor2):
+                temp_floor2 = False
+                message("魔法门被打开了！")
+                level.config["floor"][1][2][4] = "floor"
+                open_music.play()
+                screen.blit(floor_image, (32 + 4 * 64, 32 + 2 * 64))
 
     lvl[dy - 1][dx - 1] = "player"
     # match face:
@@ -739,9 +767,11 @@ def game_help():
 
 def game_launch():
     global screen
+    global allow_cheat
     for ima in range(0, 16):
         for ge in range(0, 12):
             screen.blit(floor_image, (ima * 64, ge * 64))
+    allow_cheat = bool(level.config["allow-cheat"])
     text_start_menu = font_start_menu.render("欢迎来到魔塔世界", True, (190, 10, 60))
     text_start_menu.set_colorkey((0, 0, 0, 255))
     screen.blit(text_start_menu, (108, 128))
@@ -795,10 +825,11 @@ def choose_level():
                 mouse = pygame.mouse.get_pos()
                 mouse_left = mouse[0]
                 mouse_top = mouse[1]
-                if 400 <= mouse_left <= 600 and 100 <= mouse_top <= 200:
-                    draw_button("作弊", (200, 100, 400, 100), (460, 130), (140, 255, 140))
-                else:
-                    draw_button("作弊", (200, 100, 400, 100), (460, 130), (200, 200, 200))
+                if allow_cheat:
+                    if 400 <= mouse_left <= 600 and 100 <= mouse_top <= 200:
+                        draw_button("作弊", (200, 100, 400, 100), (460, 130), (140, 255, 140))
+                    else:
+                        draw_button("作弊", (200, 100, 400, 100), (460, 130), (200, 200, 200))
                 if 400 <= mouse_left <= 600 and 230 <= mouse_top <= 330:
                     draw_button("简单", (200, 100, 400, 230), (460, 260), (140, 255, 140))
                 else:
@@ -815,13 +846,14 @@ def choose_level():
                 mouse = pygame.mouse.get_pos()
                 mouse_left = mouse[0]
                 mouse_top = mouse[1]
-                if 400 <= mouse_left <= 600 and 100 <= mouse_top <= 200:
-                    player_health = 9999999
-                    player_attack = 9999999
-                    player_defence = 9999999
-                    player_money = 9999999
-                    init_floor()
-                    start()
+                if allow_cheat:
+                    if 400 <= mouse_left <= 600 and 100 <= mouse_top <= 200:
+                        player_health = 9999999
+                        player_attack = 9999999
+                        player_defence = 9999999
+                        player_money = 9999999
+                        init_floor()
+                        start()
                 if 400 <= mouse_left <= 600 and 230 <= mouse_top <= 330:
                     player_health = int(level.config["difficulty"]["easy"]["health"])
                     player_attack = int(level.config["difficulty"]["easy"]["attack"])
@@ -901,6 +933,8 @@ def blit_initial():
                 screen.blit(sapphire_image, (32 + j * 64, 32 + i * 64))
             elif level.config["floor"][current_level][i][j] == "topaz":
                 screen.blit(topaz_image, (32 + j * 64, 32 + i * 64))
+            elif level.config["floor"][current_level][i][j] == "magic-door":
+                screen.blit(magic_door_image, (32 + j * 64, 32 + i * 64))
             elif level.config["floor"][current_level][i][j] in level.config["monster"].keys():
                 monster_image = pygame.image.load(
                     level.config["monster"][level.config["floor"][current_level][i][j]]["texture"])
@@ -950,6 +984,7 @@ def blit_initial():
 def init():
     global can_turn, ice_magic, lucky_coin, pickaxe, holy_water, magic_key, tnt, quake_scroll, magic_wing
     global yellow_key, red_key, blue_key, green_key, face
+    global temp_floor2
     ice_magic = False
     lucky_coin = False
     pickaxe = False
@@ -963,6 +998,7 @@ def init():
     blue_key = 0
     green_key = 0
     face = 1
+    temp_floor2 = True
     update()
     pygame.mixer.music.load(".\\music\\bgm.mp3")
     pygame.mixer.music.play(-1, 0.0)
@@ -1030,10 +1066,21 @@ def start():
                         x += 64
                         dx += 1
                 if event.key == pygame.K_RETURN:  # 回车测试按钮
-                    print(level.config["floor"])
+                    print(level.config["floor"][current_level])
                     print(str(x) + " " + str(y))
                 if event.key == pygame.K_v:  # 查看怪物手册
-                    pass
+                    tips = ""
+                    for key in level.config["monster"].keys():
+                        for i in range(0, len(level.config["floor"][current_level])):
+                            for j in range(0, len(level.config["floor"][current_level][i])):
+                                if level.config["floor"][current_level][i][j] == key:
+                                    if tips.find(level.config["monster"][key]["name"]) == -1:
+                                        tips += (str(level.config["monster"][key]["name"]) +
+                                                 "：生命：" + str(level.config["monster"][key]["health"]) +
+                                                 "，攻击：" + str(level.config["monster"][key]["attack"]) +
+                                                 "，防御：" + str(level.config["monster"][key]["defence"]) +
+                                                 "，金钱：" + str(level.config["monster"][key]["money"]) + "\n")
+                    message(tips)
             if event.type == pygame.MOUSEBUTTONDOWN:  # 使用道具
                 mouse = pygame.mouse.get_pos()
                 mouse_left = mouse[0]
@@ -1041,7 +1088,7 @@ def start():
                 if 896 < mouse_left < 960 and 256 < mouse_top < 320:
                     if holy_water:
                         h = (current_level + 1) * 1000
-                        message("你使用了圣水，你恢复了" + str(h) + "的生命值。", False)
+                        message("你使用了圣水，你恢复了" + str(h) + "的生命值。")
                         player_health += h
                         holy_water = False
                         update()
@@ -1059,7 +1106,7 @@ def start():
                         if not dx <= 1 and level.config["floor"][current_level][dy - 1][dx - 2] == "wall":
                             level.config["floor"][current_level][dy - 1][dx - 2] = "floor"
                             screen.blit(floor_image, (x - 64, y))
-                        message("你使用了镐子，破除了周围的墙壁。", False)
+                        message("你使用了镐子，破除了周围的墙壁。")
                         pickaxe = False
                         update()
                 if 768 < mouse_left < 832 and 320 < mouse_top < 384:
@@ -1069,7 +1116,7 @@ def start():
                                 if "door" in level.config["floor"][current_level][i][j]:
                                     level.config["floor"][current_level][i][j] = "floor"
                                     screen.blit(floor_image, (32 + j * 64, 32 + i * 64))
-                        message("你使用了魔法钥匙，现在这一层楼全部的门都已打开。", False)
+                        message("你使用了魔法钥匙，现在这一层楼全部的门都已打开。")
                         magic_key = False
                         update()
                 if 832 < mouse_left < 896 and 320 < mouse_top < 384:
@@ -1090,7 +1137,7 @@ def start():
                                 level.config["monster"].keys()):
                             level.config["floor"][current_level][dy - 1][dx - 2] = "floor"
                             screen.blit(floor_image, (x - 64, y))
-                        message("你使用了炸弹，你周围的怪物被杀死了。", False)
+                        message("你使用了炸弹，你周围的怪物被杀死了。")
                         tnt = False
                         update()
                 if 896 < mouse_left < 960 and 320 < mouse_top < 384:
@@ -1101,7 +1148,7 @@ def start():
                                         "floor" in level.config["floor"][current_level][i][j]):
                                     level.config["floor"][current_level][i][j] = "floor"
                                     screen.blit(floor_image, (32 + j * 64, 32 + i * 64))
-                        message("你使用了地震卷轴，现在这一层楼全部的墙都已被破坏。", False)
+                        message("你使用了地震卷轴，现在这一层楼全部的墙都已被破坏。")
                         quake_scroll = False
                         update()
                 if 960 < mouse_left < 1024 and 320 < mouse_top < 384:
@@ -1109,7 +1156,7 @@ def start():
                         ddx = 12 - dx
                         ddy = 12 - dy
                         if level.config["floor"][current_level][ddy - 1][ddx - 1] != "floor":
-                            message("你不能飞过去，对面不是地板！", False)
+                            message("你不能飞过去，对面不是地板！")
                         else:
                             level.config["floor"][current_level][dy - 1][dx - 1] = "floor"
                             dx = ddx
@@ -1118,7 +1165,7 @@ def start():
                             y = 32 + (dy - 1) * 64
                             level.config["floor"][current_level][dy - 1][dx - 1] = "player"
                             magic_wing -= 1
-                            message("你使用了魔法翅膀，现在你已经飞到了中心对称的对面。剩余" + str(magic_wing) + "次。", False)
+                            message("你使用了魔法翅膀，现在你已经飞到了中心对称的对面。剩余" + str(magic_wing) + "次。")
                             update()
         player_move()
         draw_player()
