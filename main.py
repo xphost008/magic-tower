@@ -11,12 +11,13 @@ import pygame
 from pygame.locals import *
 import level
 import sys
+import os
 
 # 初始化pygame
 pygame.init()
 pygame.mixer.init()
 
-favicon = pygame.image.load(".\\favicon.ico")  # 程序图标
+favicon = pygame.image.load("favicon.ico")  # 程序图标
 pygame.display.set_icon(favicon)  # 设置程序图标
 
 screen = pygame.display.set_mode((1024, 768))  # 设定窗口宽高为1024 x 768
@@ -27,67 +28,67 @@ player_attack = 0  # 玩家攻击
 player_defence = 0  # 玩家防御
 player_money = 0  # 玩家金钱
 
-failed_image = pygame.image.load(".\\image\\human\\boom.png")  # 死亡动画
+failed_image = pygame.image.load(os.path.join("image", "human", "boom.png"))  # 死亡动画
 
-player_face_image = pygame.image.load(".\\image\\human\\player_face.png")  # 玩家正脸
-player_left_image = pygame.image.load(".\\image\\human\\player_left.png")  # 玩家左脸
-player_right_image = pygame.image.load(".\\image\\human\\player_right.png")  # 玩家右脸
-player_back_image = pygame.image.load(".\\image\\human\\player_back.png")  # 玩家背面
+player_face_image = pygame.image.load(os.path.join("image", "human", "player_face.png"))  # 玩家正脸
+player_left_image = pygame.image.load(os.path.join("image", "human", "player_left.png"))  # 玩家左脸
+player_right_image = pygame.image.load(os.path.join("image", "human", "player_right.png"))  # 玩家右脸
+player_back_image = pygame.image.load(os.path.join("image", "human", "player_back.png"))  # 玩家背面
 
-wall_image = pygame.image.load(".\\image\\full_floor\\wall.png")  # 墙壁
-floor_image = pygame.image.load(".\\image\\full_floor\\floor.png")  # 地板
-upstairs = pygame.image.load(".\\image\\full_floor\\upstairs.png")  # 上楼
-downstairs = pygame.image.load(".\\image\\full_floor\\downstairs.png")  # 下楼
-lava_image = pygame.image.load(".\\image\\full_floor\\lava.png")  # 岩浆
+wall_image = pygame.image.load(os.path.join("image", "full_floor", "wall.png"))  # 墙壁
+floor_image = pygame.image.load(os.path.join("image", "full_floor", "floor.png"))  # 地板
+upstairs = pygame.image.load(os.path.join("image", "full_floor", "upstairs.png"))  # 上楼
+downstairs = pygame.image.load(os.path.join("image", "full_floor", "downstairs.png"))  # 下楼
+lava_image = pygame.image.load(os.path.join("image", "full_floor", "lava.png"))  # 岩浆
 
-emerald_image = pygame.image.load(".\\image\\props\\emerald.png")  # 绿宝石
-sapphire_image = pygame.image.load(".\\image\\props\\sapphire.png")  # 蓝宝石
-topaz_image = pygame.image.load(".\\image\\props\\topaz.png")  # 黄宝石
-ruby_image = pygame.image.load(".\\image\\props\\ruby.png")  # 红宝石
-green_key_image = pygame.image.load(".\\image\\props\\green_key.png")  # 绿钥匙
-blue_key_image = pygame.image.load(".\\image\\props\\blue_key.png")  # 蓝钥匙
-yellow_key_image = pygame.image.load(".\\image\\props\\yellow_key.png")  # 黄钥匙
-red_key_image = pygame.image.load(".\\image\\props\\red_key.png")  # 红钥匙
+emerald_image = pygame.image.load(os.path.join("image", "props", "emerald.png"))  # 绿宝石
+sapphire_image = pygame.image.load(os.path.join("image", "props", "sapphire.png"))  # 蓝宝石
+topaz_image = pygame.image.load(os.path.join("image", "props", "topaz.png"))  # 黄宝石
+ruby_image = pygame.image.load(os.path.join("image", "props", "ruby.png"))  # 红宝石
+green_key_image = pygame.image.load(os.path.join("image", "props", "green_key.png"))  # 绿钥匙
+blue_key_image = pygame.image.load(os.path.join("image", "props", "blue_key.png"))  # 蓝钥匙
+yellow_key_image = pygame.image.load(os.path.join("image", "props", "yellow_key.png"))  # 黄钥匙
+red_key_image = pygame.image.load(os.path.join("image", "props", "red_key.png"))  # 红钥匙
 
-ice_magic_image = pygame.image.load(".\\image\\special\\ice_magic.png")  # 冰冻魔法
-lucky_coin_image = pygame.image.load(".\\image\\special\\lucky_coin.png")  # 幸运金币
-holy_water_image = pygame.image.load(".\\image\\special\\holy_water.png")  # 圣水
-pickaxe_image = pygame.image.load(".\\image\\special\\pickaxe.png")  # 镐子
-tnt_image = pygame.image.load(".\\image\\special\\tnt.png")  # 炸弹
-magic_key_image = pygame.image.load(".\\image\\special\\magic_key.png")  # 魔法钥匙
-quake_scroll_image = pygame.image.load(".\\image\\special\\quake_scroll.png")  # 地震卷轴
-magic_wing_image = pygame.image.load(".\\image\\special\\magic_wing.png")  # 魔法翅膀
+ice_magic_image = pygame.image.load(os.path.join("image", "special", "ice_magic.png"))  # 冰冻魔法
+lucky_coin_image = pygame.image.load(os.path.join("image", "special", "lucky_coin.png"))  # 幸运金币
+holy_water_image = pygame.image.load(os.path.join("image", "special", "holy_water.png"))  # 圣水
+pickaxe_image = pygame.image.load(os.path.join("image", "special", "pickaxe.png"))  # 镐子
+tnt_image = pygame.image.load(os.path.join("image", "special", "tnt.png"))  # 炸弹
+magic_key_image = pygame.image.load(os.path.join("image", "special", "magic_key.png"))  # 魔法钥匙
+quake_scroll_image = pygame.image.load(os.path.join("image", "special", "quake_scroll.png"))  # 地震卷轴
+magic_wing_image = pygame.image.load(os.path.join("image", "special", "magic_wing.png"))  # 魔法翅膀
 
-# green_slime_image = pygame.image.load(".\\image\\green_slime.png")  # 绿色史莱姆
-# blue_slime_image = pygame.image.load(".\\image\\blue_slime.png")  # 蓝色史莱姆
-# red_slime_image = pygame.image.load(".\\image\\red_slime.png")  # 红色史莱姆
-# yellow_slime_image = pygame.image.load(".\\image\\yellow_slime.png")  # 黄色史莱姆
+# green_slime_image = pygame.image.load(os.path.join("image", "green_slime.png"))  # 绿色史莱姆
+# blue_slime_image = pygame.image.load(os.path.join("image", "blue_slime.png"))  # 蓝色史莱姆
+# red_slime_image = pygame.image.load(os.path.join("image", "red_slime.png"))  # 红色史莱姆
+# yellow_slime_image = pygame.image.load(os.path.join("image", "yellow_slime.png"))  # 黄色史莱姆
 
-green_door_image = pygame.image.load(".\\image\\full_floor\\green_door.png")  # 绿门
-blue_door_image = pygame.image.load(".\\image\\full_floor\\blue_door.png")  # 蓝门
-red_door_image = pygame.image.load(".\\image\\full_floor\\red_door.png")  # 红门
-yellow_door_image = pygame.image.load(".\\image\\full_floor\\yellow_door.png")  # 黄门
-magic_door_image = pygame.image.load(".\\image\\full_floor\\magic_door.png")  # 魔法门
+green_door_image = pygame.image.load(os.path.join("image", "full_floor", "green_door.png"))  # 绿门
+blue_door_image = pygame.image.load(os.path.join("image", "full_floor", "blue_door.png"))  # 蓝门
+red_door_image = pygame.image.load(os.path.join("image", "full_floor", "red_door.png"))  # 红门
+yellow_door_image = pygame.image.load(os.path.join("image", "full_floor", "yellow_door.png"))  # 黄门
+magic_door_image = pygame.image.load(os.path.join("image", "full_floor", "magic_door.png"))  # 魔法门
 
-font_attribute = pygame.font.Font(".\\font\\msyh.ttc", 20)  # 属性栏字体
-font_start_menu = pygame.font.Font(".\\font\\simfang.ttf", 96)  # 界面大标题
-font_start_button = pygame.font.Font(".\\font\\simfang.ttf", 36)  # 按钮标题
-font_message = pygame.font.Font(".\\font\\msyh.ttc", 16)  # 信息框字体
-font_level = pygame.font.Font(".\\font\\msyh.ttc", 42)  # 楼层字体
-font_help = pygame.font.Font(".\\font\\msyh.ttc", 24)  # 帮助字体
+font_attribute = pygame.font.Font(os.path.join("font", "msyh.ttc"), 20)  # 属性栏字体
+font_start_menu = pygame.font.Font(os.path.join("font", "simfang.ttf"), 96)  # 界面大标题
+font_start_button = pygame.font.Font(os.path.join("font", "simfang.ttf"), 36)  # 按钮标题
+font_message = pygame.font.Font(os.path.join("font", "msyh.ttc"), 16)  # 信息框字体
+font_level = pygame.font.Font(os.path.join("font", "msyh.ttc"), 42)  # 楼层字体
+font_help = pygame.font.Font(os.path.join("font", "msyh.ttc"), 24)  # 帮助字体
 
-villager_image = pygame.image.load(".\\image\\human\\villager.png")  # 商人
-messenger_image = pygame.image.load(".\\image\\human\\messenger.png")  # 传话人
-error_image = pygame.image.load(".\\image\\full_floor\\error.png")  # 错误贴图
+villager_image = pygame.image.load(os.path.join("image", "human", "villager.png"))  # 商人
+messenger_image = pygame.image.load(os.path.join("image", "human", "messenger.png"))  # 传话人
+error_image = pygame.image.load(os.path.join("image", "full_floor", "error.png"))  # 错误贴图
 
-ding_music = pygame.mixer.Sound(".\\music\\ogg\\ding.ogg")
-kill_music = pygame.mixer.Sound(".\\music\\ogg\\kill.ogg")
-open_music = pygame.mixer.Sound(".\\music\\ogg\\open.ogg")
-pick_music = pygame.mixer.Sound(".\\music\\ogg\\pick.ogg")
-fizz_music = pygame.mixer.Sound(".\\music\\ogg\\fizz.ogg")
-yes_music = pygame.mixer.Sound(".\\music\\ogg\\yes.ogg")
-no_music = pygame.mixer.Sound(".\\music\\ogg\\no.ogg")
-idle_music = pygame.mixer.Sound(".\\music\\ogg\\idle.ogg")
+ding_music = pygame.mixer.Sound(os.path.join("music", "ogg", "ding.ogg"))
+kill_music = pygame.mixer.Sound(os.path.join("music", "ogg", "kill.ogg"))
+open_music = pygame.mixer.Sound(os.path.join("music", "ogg", "open.ogg"))
+pick_music = pygame.mixer.Sound(os.path.join("music", "ogg", "pick.ogg"))
+fizz_music = pygame.mixer.Sound(os.path.join("music", "ogg", "fizz.ogg"))
+yes_music = pygame.mixer.Sound(os.path.join("music", "ogg", "yes.ogg"))
+no_music = pygame.mixer.Sound(os.path.join("music", "ogg", "no.ogg"))
+idle_music = pygame.mixer.Sound(os.path.join("music", "ogg", "idle.ogg"))
 
 yellow_key = 0  # 黄钥匙个数
 blue_key = 0  # 蓝钥匙个数
@@ -1000,7 +1001,7 @@ def init():
     face = 1
     temp_floor2 = True
     update()
-    pygame.mixer.music.load(".\\music\\bgm.mp3")
+    pygame.mixer.music.load(os.path.join("music", "bgm.mp3"))
     pygame.mixer.music.play(-1, 0.0)
     message("=游玩须知=  ：  按Enter键继续……", True)
     message("=游玩须知=  ：  在本魔塔游戏中，任何角色的名字都是虚构的，与现实生活毫无关系。", True)
