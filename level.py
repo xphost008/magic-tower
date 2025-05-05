@@ -65,22 +65,22 @@ config = {
         "iron-sword": {
             "add": "attack",
             "count": 10,
-            "texture": ".\\image\\non-special\\iron_sword.png"
+            "texture": os.path.join("image", "non-special", "iron_sword.png")
         },
         "iron-shield": {
             "add": "defence",
             "count": 10,
-            "texture": ".\\image\\non-special\\iron_shield.png"
+            "texture": os.path.join("image", "non-special", "iron_shield.png")
         }
     },
-    "monster": {  # 在这里自定义怪物
+    "monster": {
         "yellow-slime": {
             "name": "黄史莱姆",
             "health": 20,
             "attack": 7,
             "defence": 7,
             "money": 5,
-            "texture": ".\\image\\monsters\\yellow_slime.png",
+            "texture": os.path.join("image", "monsters", "yellow_slime.png"),
             "say": []
         },
         "green-slime": {
@@ -89,7 +89,7 @@ config = {
             "attack": 10,
             "defence": 10,
             "money": 8,
-            "texture": ".\\image\\monsters\\green_slime.png",
+            "texture": os.path.join("image", "monsters", "green_slime.png"),
             "say": []
         },
         "red-slime": {
@@ -98,7 +98,7 @@ config = {
             "attack": 15,
             "defence": 15,
             "money": 10,
-            "texture": ".\\image\\monsters\\red_slime.png",
+            "texture": os.path.join("image", "monsters", "red_slime.png"),
             "say": []
         },
         "blue-slime": {
@@ -107,7 +107,7 @@ config = {
             "attack": 20,
             "defence": 20,
             "money": 15,
-            "texture": ".\\image\\monsters\\blue_slime.png",
+            "texture": os.path.join("image", "monsters", "blue_slime.png"),
             "say": []
         },
         "high-guard": {
@@ -116,7 +116,7 @@ config = {
             "attack": 400,
             "defence": 450,
             "money": 900,
-            "texture": ".\\image\\monsters\\high_guard.png",
+            "texture": os.path.join("image", "monsters", "high_guard.png"),
             "say": []
         },
         "small-bat": {
@@ -125,7 +125,7 @@ config = {
             "attack": 40,
             "defence": 30,
             "money": 25,
-            "texture": ".\\image\\monsters\\small_bat.png",
+            "texture": os.path.join("image", "monsters", "small_bat.png"),
             "say": []
         }
     },
@@ -321,12 +321,12 @@ config = {
 
 def load_json():
     global config
-    with open(".\\config.json", "r", encoding="GBK") as f:
+    with open("config.json", "r", encoding="utf-8") as f:
         config = json.loads(f.read())
 
 
 def spawn_json():
-    if not os.path.exists(".\\config.json"):
+    if not os.path.exists("config.json"):
         conf = json.dumps(config, indent=4, ensure_ascii=False)
-        with open(".\\config.json", "w") as f:
+        with open("config.json", "w") as f:
             f.write(conf)
